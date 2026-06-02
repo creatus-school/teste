@@ -124,10 +124,6 @@ h3.titulo-pratiquei, h2.titulo-verificador {
     text-align: center;
 }
 
-.titulo-dias-dashboard {
-    text-align: center;
-}
-
 /* Estilo dos Inputs (Caixas de texto arredondadas) */
 input[type="text"], input[type="password"], input[type="email"] {
     width: 100%;
@@ -1372,4 +1368,8 @@ h1.titulo-dia {
     /* Para centralizar o bloco do rodapé na página, se ele tiver uma largura máxima */
     margin-left: auto;
     margin-right: auto;
+}
+
+.titulo-dias-dashboard {
+    text-align: center;
 }
