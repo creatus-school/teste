@@ -45,9 +45,7 @@ body {
 #tela-dashboard,
 #tela-dia,
 #tela-verificador-semanal,
-.tela-onboarding,
-#tela-verificador-progresso,
-#tela-estatisticas { /* Adicionado #tela-verificador-progresso e #tela-estatisticas */
+.tela-onboarding {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 30px 20px; /* Espaço interno reduzido nas laterais */
     border-radius: 20px;
@@ -59,7 +57,7 @@ body {
 }
 
 /* Limites máximos de largura para telas grandes (PC) */
-#tela-login, #tela-dashboard, #tela-dia, #tela-verificador-semanal, #tela-verificador-progresso {
+#tela-login, #tela-dashboard, #tela-dia, #tela-verificador-semanal {
     max-width: 600px;
 }
 
@@ -632,14 +630,6 @@ textarea.caixa-azul:focus {
     margin-bottom: 20px;
 }
 
-.tabela-tarefas {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
-
 .tabela-tarefas td {
     padding: 15px;
     background-color: rgba(207, 212, 217, 0.3); /* Fundo cinza claro transparente */
@@ -974,9 +964,7 @@ textarea.caixa-azul:focus {
     #tela-dashboard,
     #tela-dia,
     #tela-verificador-semanal,
-    .tela-onboarding,
-    #tela-verificador-progresso,
-    #tela-estatisticas { /* Adicionado #tela-verificador-progresso e #tela-estatisticas */
+    .tela-onboarding {
         padding: 25px 15px !important;
         width: 100% !important; /* Deixa uma pequena margem fora do card */
     }
@@ -1145,8 +1133,7 @@ textarea.caixa-azul:focus {
     }
 
 /* Diminui a fonte das perguntas abertas no Verificador Semanal */
-#tela-verificador-semanal h3,
-#tela-verificador-progresso h3 { /* Adicionado #tela-verificador-progresso */
+#tela-verificador-semanal h3 {
     font-size: 14px !important; /* Ajuste este valor se quiser maior ou menor */
     margin-top: 20px !important; /* Reduz um pouco o espaço em cima para caber melhor */
 }
@@ -1180,197 +1167,6 @@ textarea.caixa-azul:focus {
 /* Contêiner flexível para o título 'Dia #X' */
 .cabecalho-dia-titulo {
     display: flex;
-    align-items: center; /* Voltamos para o center, mas agora com a altura corrigida */
-    justify-content: flex-start;
-    gap: 4px;
-    margin-bottom: 8px;
-    width: 100%;
-}
-
-/* Título (DIA #X -) */
-h1.titulo-dia {
-    white-space: nowrap;
-    margin: 0;
-    line-height: 1; /* Força a altura exata da fonte */
-}
-
-/* Campo de digitar o dia da semana */
-#dia-semana {
-    background: transparent;
-    border: none;
-    border-radius: 0 !important; /* Remove a borda invisível que estava cortando o 'D' */
-    font-family: var(--fonte-dias);
-    font-size: 2.5rem !important; /* Força o tamanho exato do título */
-    line-height: 1; /* Iguala a altura com a do título */
-    color: var(--cor-azul);
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    box-shadow: none;
-    overflow: visible; /* Garante que as perninhas da letra cursiva não sumam */
-}
-
-#dia-semana:focus {
-    box-shadow: none;
-    border-bottom: 2px dashed var(--cor-cinza-input);
-}
-
-.topo-logo {
-    text-align: center;
-    margin-top: -40px;
-    margin-bottom: -25px;
-    width: 100%;
-}
-
-.imagem-titulo {
-    max-width: 90%; /* Garante que não vaze da tela no celular */
-    width: 400px; /* Tamanho máximo no computador (ajuste se quiser maior ou menor) */
-    height: auto;
-}
-
-/* Estilos da Logo do Rodapé */
-.rodape-logo {
-    text-align: center;
-    margin-top: 0px;
-    margin-bottom: 20px;
-}
-
-.imagem-rodape {
-    max-width: 120px; /* Tamanho da logo (aumente ou diminua se precisar) */
-    height: auto;
-    opacity: 1; /* Deixa a logo levemente transparente para dar um efeito de rodapé elegante */
-}
-
-/* Botão de adicionar novo campo de palavra/expressao e exemplo nos dias */
-.btn-adicionar-campo {
-    background-color: #d1d5db; /* Cinza claro */
-    color: #374151; /* Texto escuro */
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-weight: bold;
-    font-size: 12px;
-    cursor: pointer;
-    margin-top: 15px;
-    margin-bottom: 20px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto; /* Centraliza o botão */
-}
-
-.btn-adicionar-campo:hover {
-    background-color: #9ca3af; /* Fica um pouco mais escuro ao passar o mouse */
-}
-
-/* GRID DE PROGRESSO GERAL */
-.grid-estatisticas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.card-estatistica {
-    background-color: var(--cor-cinza-input);
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-}
-
-.card-estatistica h3 {
-    font-family: var(--fonte-texto);
-    font-size: 14px;
-    color: #555;
-    margin: 0 0 10px 0;
-}
-
-.card-estatistica p {
-    font-family: var(--fonte-titulos);
-    font-size: 36px;
-    color: var(--cor-roxa);
-    margin: 0;
-}
-
-.barra-empenho-bg {
-    background-color: var(--cor-cinza-input);
-    border-radius: 10px;
-    height: 20px;
-    width: 100%;
-    margin-bottom: 15px;
-    overflow: hidden;
-    position: relative;
-}
-
-.barra-empenho-fill {
-    background-color: var(--cor-azul);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    padding-left: 10px;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    transition: width 0.5s ease;
-}
-
-/* 1. Regra para o Celular (Ocupa o espaço normal) */
-#tela-estatisticas {
-    width: 100% !important;
-    box-sizing: border-box;
-}
-
-/* 2. Regra para o Computador (Fura o bloqueio do container e estica) */
-@media screen and (min-width: 768px) {
-    #tela-estatisticas {
-        width: 900px !important; /* Largura ideal para o PC */
-        max-width: 95vw !important; /* Margem de segurança */
-
-        /* O truque mágico para centralizar ignorando o container: */
-        position: relative !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-    }
-}
-
-/* Força a quebra de linha para 'dias estudados' e 'palavras novas' apenas em telas de celular */
-@media (max-width: 767px) {
-    .quebra-celular {
-        display: block;
-    }
-}
-
-@media print {
-    body {
-        -webkit-print-color-adjust: exact; /* Para Chrome/Safari */
-        print-color-adjust: exact; /* Padrão */
-    }
-    /* Evita quebra de página dentro de elementos importantes */
-    .semana-container, .barra-container, .caixa-azul, ul {
-        page-break-inside: avoid !important;
-    }
-    /* Força uma nova página antes de títulos grandes, se necessário */
-    h2 {
-        page-break-before: auto;
-    }
-    /* Garante que o conteúdo flua sem limites de altura fixos */
-    #tela-estatisticas {
-        height: auto !important;
-        max-height: none !important;
-        overflow: visible !important;
-    }
-}
-
-.rodape {
-    margin-top: 40px;
-    padding: 20px;
-    text-align: center; /* Esta linha centraliza o texto e elementos inline */
-    font-size: 0.85rem;
-    color: #777;
-    border-top: 1px solid #eee;
-    width: 100%;
-    max-width: 600px; /* Alinha com a largura máxima dos cards */
-    box-sizing: border-box;
-    /* Para centralizar o bloco do rodapé na página, se ele tiver uma largura máxima */
-    margin-left: auto;
-    margin-right: auto;
+    align-items: center; /* Voltamos para o center, mas agora com a altura do input */
+    gap: 10px; /* Espaço entre o "Dia" e o input */
 }
