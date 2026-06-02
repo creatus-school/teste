@@ -152,21 +152,26 @@ function gerarGridDias() {
 
         // Cria os botões dos dias
         for (let d = 1; d <= diasPorSemana; d++) {
-            let numeroDia = (s * diasPorSemana) + d;
-            if (numeroDia > 147) break; // Para não passar de 91
+            const numeroDia = (s * diasPorSemana) + d; // 1 ... 147
 
-            const btn = document.createElement('div');
-            btn.className = 'dia-btn';
-            btn.id = 'btn-dia-' + numeroDia; // Adicione esta linha            
-            btn.innerText = numeroDia; // Mostra só o número para ficar elegante
-            btn.onclick = () => abrirDia(numeroDia);
-            diasGrid.appendChild(btn);
+            const btnDia = document.createElement('button');
+            btnDia.className = 'dia-btn';
+            btnDia.innerText = numeroDia;
+
+            btnDia.onclick = () => abrirDia(numeroDia);
+
+            // Marca como concluído se já tiver sido estudado
+            if (diasConcluidos.includes(numeroDia)) {
+                btnDia.classList.add('concluido');
+            }
+
+            diasGrid.appendChild(btnDia);
         }
 
         semanaDiv.appendChild(diasGrid);
 
         // Adiciona o botão do Verificador de Progresso nas semanas 4, 8 e 13
-        if (s === 3 || s === 7 || s === 12) {
+        if (s === 3 || s === 7 || s === 11 || s === 15 || s === 20) {
             let mes = s === 3 ? 1 : (s === 7 ? 2 : 3);
             const btnProgresso = document.createElement('button');
             btnProgresso.innerText = 'verificador de progresso';
