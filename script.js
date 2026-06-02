@@ -130,44 +130,54 @@ auth.onAuthStateChanged(user => {
 // 3. LÓGICA DO APLICATIVO
 function gerarGridDias() {
     const grid = document.getElementById('grid-dias');
-    grid.innerHTML = ''; 
+    grid.innerHTML = '';
 
-    let diasPorSemana = 7;
-    let totalSemanas = 21; // 13 semanas x 7 dias = 91 dias
+    const diasPorSemana = 7;
+    const totalSemanas = 21;            // 21 semanas
+    const totalDias = diasPorSemana * totalSemanas; // 147 dias
 
     for (let s = 0; s < totalSemanas; s++) {
         // Cria a caixa da semana
         const semanaDiv = document.createElement('div');
         semanaDiv.className = 'semana-container';
 
-        // Cria o título da semana
+        // Título da semana
         const titulo = document.createElement('div');
         titulo.className = 'titulo-semana';
-        titulo.innerText = 'Semana ' + (s + 1);
+        titulo.innerText = 'SEMANA ' + (s + 1);
         semanaDiv.appendChild(titulo);
 
-        // Cria a grade para os 7 dias
+        // Grade com os 7 dias
         const diasGrid = document.createElement('div');
         diasGrid.className = 'dias-grid';
 
         // Cria os botões dos dias
         for (let d = 1; d <= diasPorSemana; d++) {
-            let numeroDia = (s * diasPorSemana) + d;
-            if (numeroDia > 147) break; // Para não passar de 91
+            const numeroDia = (s * diasPorSemana) + d;
+            if (numeroDia > totalDias) break;   // não passa de 147
 
-            const btn = document.createElement('div');
+            const btn = document.createElement('button');
             btn.className = 'dia-btn';
-            btn.id = 'btn-dia-' + numeroDia; // Adicione esta linha            
-            btn.innerText = numeroDia; // Mostra só o número para ficar elegante
+            btn.dataset.dia = numeroDia;
+            btn.id = 'btn-dia-' + numeroDia;
+            btn.innerText = numeroDia;          // mostra o número do dia
             btn.onclick = () => abrirDia(numeroDia);
+
             diasGrid.appendChild(btn);
         }
 
         semanaDiv.appendChild(diasGrid);
 
-        // Adiciona o botão do Verificador de Progresso nas semanas 4, 8 e 13
-        if (s === 3 || s === 7 || s === 12) {
-            let mes = s === 3 ? 1 : (s === 7 ? 2 : 3);
+        // Adiciona o botão do Verificador de Progresso nas semanas 4, 8, 12, 16 e 21
+        if (s === 3 || s === 7 || s === 11 || s === 15 || s === 20) {
+            // mapeia semana → "mês" do verificador
+            let mes;
+            if (s === 3)      mes = 1; // depois da semana 4
+            else if (s === 7) mes = 2; // depois da semana 8
+            else if (s === 11) mes = 3; // depois da semana 12
+            else if (s === 15) mes = 4; // depois da semana 16
+            else if (s === 20) mes = 5; // depois da semana 21
+
             const btnProgresso = document.createElement('button');
             btnProgresso.innerText = 'verificador de progresso';
             btnProgresso.style.width = '100%';
@@ -175,11 +185,13 @@ function gerarGridDias() {
             btnProgresso.style.backgroundColor = 'var(--cor-roxa)';
             btnProgresso.style.fontSize = '17.5px';
             btnProgresso.onclick = () => abrirVerificadorProgresso(mes);
+
             semanaDiv.appendChild(btnProgresso);
         }
 
         grid.appendChild(semanaDiv);
     }
+
     // Chama a função para pintar os dias já salvos
     carregarProgressoDias();
 }
