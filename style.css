@@ -1,0 +1,1371 @@
+/* Importando a fonte Quicksand do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
+
+/* Configurando as fontes personalizadas (caso você tenha os arquivos .ttf ou .otf na mesma pasta) */
+@font-face {
+    font-family: 'Sweet & Salty';
+    src: url('Sweet&Salty-Regular.otf') format('truetype'); /* Substitua pelo nome real do seu arquivo de fonte */
+}
+
+@font-face {
+    font-family: 'Bantayog';
+    src: url('Bantayog-Regular.otf') format('truetype'); /* Substitua pelo nome real do seu arquivo de fonte */
+}
+
+:root {
+    /* Paleta de Cores baseada nas imagens */
+    --cor-roxa: #822483; /* Usada no DIA, Verificador e Barras */
+    --cor-azul: #38A3D1; /* Usada na Tarefa, Vocabulário e Caixa de Emojis */
+    --cor-cinza-input: #cfd4d9; /* Fundo das caixas de texto */
+    --cor-texto: #333333;
+
+    /* Fontes */
+    --fonte-dias: 'Sweet & Salty', cursive;
+    --fonte-titulos: 'Bantayog', sans-serif;
+    --fonte-texto: 'Quicksand', sans-serif;
+}
+
+body {
+    font-family: var(--fonte-texto);
+    color: var(--cor-texto);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Esta é a linha mágica para centralizar na vertical */
+    box-sizing: border-box;
+    background-color: #f4f4f4;
+    background-image: url('crumpled_white_paper_texture.jpg'); 
+}
+
+/* --- ESTILO GERAL DE TODOS OS CARDS BRANCOS --- */
+#tela-login, 
+#tela-dashboard, 
+#tela-dia, 
+#tela-verificador-semanal, 
+.tela-onboarding {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px 20px; /* Espaço interno reduzido nas laterais */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box; /* ESSA É A REGRA MÁGICA QUE IMPEDE O VAZAMENTO */
+    text-align: center;
+    margin: 0 auto 20px auto; /* Centraliza na tela */
+}
+
+/* Limites máximos de largura para telas grandes (PC) */
+#tela-login, #tela-dashboard, #tela-dia, #tela-verificador-semanal {
+    max-width: 600px;
+}
+
+.tela-onboarding {
+    max-width: 700px; /* Telas de texto podem ser mais largas no PC */
+}
+
+/* --- ESTILOS ESPECÍFICOS DO LOGIN --- */
+.input-login {
+    width: 100%;
+    padding: 25px 20px;
+    margin: 10px 0;
+    background-color: white;
+    border: 2px solid var(--cor-cinza-input);
+    border-radius: 30px;
+    font-family: var(--fonte-texto);
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.input-login:focus {
+    border-color: var(--cor-roxa);
+    box-shadow: 0 0 10px rgba(130, 36, 131, 0.2);
+    outline: none;
+}
+
+/* Estilo da Logo no Login */
+.logo-login {
+    max-width: 180px; /* Você pode aumentar ou diminuir esse valor para ajustar o tamanho */
+    height: auto;
+    margin: 0 auto 20px auto; /* Centraliza a imagem e dá um espaço embaixo */
+    display: block;
+}
+
+/* Estilo do link de suporte centralizado */
+.texto-suporte {
+    text-align: center;
+    margin-top: 20px;
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    color: var(--cor-texto);
+}
+
+/* Títulos e Textos Específicos */
+h1.titulo-dia {
+    font-family: var(--fonte-dias);
+    color: var(--cor-roxa);
+    font-size: 3rem;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+h2.titulo-tarefa, h2.titulo-vocabulario, h3.titulo-pratiquei {
+    font-family: var(--fonte-titulos);
+    color: var(--cor-azul);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+h3.titulo-pratiquei, h2.titulo-verificador {
+    color: var(--cor-roxa);
+    text-align: center;
+}
+
+/* Estilo dos Inputs (Caixas de texto arredondadas) */
+input[type="text"], input[type="password"], input[type="email"] {
+    width: 100%;
+    padding: 15px 20px;
+    margin: 8px 0;
+    background-color: var(--cor-cinza-input);
+    border: none;
+    border-radius: 30px; /* Formato de pílula */
+    font-family: var(--fonte-texto);
+    font-weight: 600;
+    font-size: 16px;
+    color: #555;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(56, 163, 209, 0.4); /* Brilho azul ao clicar */
+}
+
+/* Caixa Azul Superior (Ex: Tarefa Oralidade) */
+.caixa-azul {
+    background-color: var(--cor-azul);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+/* Barras de Progresso Roxas */
+.barra-container {
+    background-color: var(--cor-roxa);
+    border-radius: 30px;
+    padding: 10px 20px;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    font-family: var(--fonte-texto);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* Botões Gerais */
+button {
+    background-color: var(--cor-roxa);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 15px 30px;
+    font-family: var(--fonte-titulos);
+    font-size: 18px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-top: 20px;
+}
+
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    color: white !important;
+}
+
+.escondido {
+    display: none !important;
+}
+
+/* Estilos para as Telas Iniciais (Onboarding) */
+.tela-onboarding {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.titulo-onboarding {
+    font-family: var(--fonte-texto);
+    color: var(--cor-azul);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.texto-onboarding {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.texto-onboarding.centralizado {
+    text-align: center;
+}
+
+.input-linha {
+    border: none;
+    border-bottom: 2px solid var(--cor-roxa);
+    background: transparent;
+    border-radius: 0;
+    padding: 5px;
+    font-size: 0.9rem;
+    color: var(--cor-texto);
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input-linha:focus {
+    box-shadow: none;
+    border-bottom: 3px solid var(--cor-azul);
+}
+
+.textarea-onboarding {
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid var(--cor-cinza-input);
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 20px;
+}
+
+.textarea-onboarding:focus {
+    outline: none;
+    border-color: var(--cor-azul);
+}
+
+.btn-avancar {
+    background-color: var(--cor-azul);
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    margin-top: 30px;
+}
+
+.lista-atividades {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    text-align: left;
+}
+
+.atividade-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;    
+}
+
+.atividade-item input {
+    margin: 0;
+}
+
+.qr-code-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    margin: 20px 0;
+    border: 2px dashed var(--cor-roxa);
+}
+
+/* Estilos dos Emojis do Verificador Diário */
+.opcoes-empenho {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-empenho {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px solid transparent;
+    border-radius: 15px;
+    padding: 10px 5px;
+    color: white;
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    flex: 1;
+    margin-top: 0;
+    line-height: 1.5;
+}
+
+.btn-empenho:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+/* Como o botão fica quando é clicado */
+.btn-empenho.selecionado {
+    background-color: white;
+    color: var(--cor-azul);
+    border: 2px solid var(--cor-roxa);
+    transform: scale(1.05);
+}
+
+/* Tamanho maior apenas para os emojis */
+.emoji-grande {
+    font-size: 45px; /* Você pode aumentar ou diminuir esse número se quiser */
+    line-height: 1.2;
+}
+
+/* --- SEÇÃO HOJE EU PRATIQUEI --- */
+.titulo-pratiquei {
+    color: var(--cor-roxa);
+    text-align: center;
+    font-family: var(--fonte-titulos);
+    margin-top: 40px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.linha-pratica {
+    background-color: var(--cor-roxa);
+    border-radius: 50px; /* Deixa as pontas bem redondas como no PDF */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.nome-habilidade {
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    font-size: 18px;
+    width: 90px;
+}
+
+.emoji-pratica {
+    font-size: 40px;
+}
+
+.porcentagens {
+    display: flex;
+    gap: 8px;
+}
+
+/* Bolinhas de porcentagem */
+.btn-porcentagem {
+    background-color: rgba(255, 255, 255, 0.5); /* Branco transparente quando não selecionado */
+    color: var(--cor-roxa);
+    border: none;
+    border-radius: 50%; /* Deixa perfeitamente redondo */
+    width: 35px;
+    height: 35px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s;
+}
+
+.btn-porcentagem:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+/* Como a bolinha fica quando você clica nela */
+.btn-porcentagem.ativo {
+    background-color: white;
+    box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    transform: scale(1.15);
+}
+
+/* --- VOCABULÁRIO E EXEMPLOS --- */
+.cabecalho-vocabulario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; /* Mesmo espaçamento das caixas */
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #333;
+    padding-left: 0px; /* Alinha o texto com o começo da caixa cinza */
+}
+
+.grid-vocabulario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px; /* 10px de espaço vertical, 20px horizontal */
+    margin-bottom: 40px;
+}
+
+.input-cinza {
+    background-color: #d1d5d8; /* Cinza azulado igual ao PDF */
+    border: none;
+    border-radius: 15px;
+    padding: 12px 15px;
+    font-family: var(--fonte-texto);
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+}
+
+.input-cinza:focus {
+    box-shadow: 0 0 0 2px var(--cor-azul); /* Borda azul ao clicar */
+}
+
+/* --- DIVISOR DE PÁGINA --- */
+.divisor-pagina {
+    text-align: center;
+    border-top: 2px dashed #ccc;
+    margin-top: 25px 0;
+    margin-bottom: 40px 0;
+    position: relative;
+}
+
+.divisor-pagina span {
+    background-color: white; /* Se o fundo do seu app for outra cor, mude aqui */
+    padding: 0 15px;
+    color: #999;
+    font-family: var(--fonte-texto);
+    font-size: 12px;
+    position: relative;
+    top: -10px;
+}
+
+/* --- MENSAGEM DE SUCESSO --- */
+#mensagem-sucesso {
+    background-color: #4CAF50; /* Verde de sucesso */
+    color: white;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Classe para esconder elementos */
+.escondido {
+    display: none !important;
+}
+
+/* Estilo do Cabeçalho do Dia (Título + Data) */
+.cabecalho-dia {
+    display: flex;
+    flex-direction: column; /* Coloca os elementos em coluna (um embaixo do outro) */
+    align-items: flex-end; /* Empurra o botão da data para a direita */
+    border-bottom: 3px solid var(--cor-azul);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+/* Mantém o título do dia alinhado à esquerda */
+h1.titulo-dia {
+    align-self: flex-start; /* Força o título a ficar na esquerda */
+    margin-bottom: 2px; /* Deixa o espaço bem pequeno (quase colado) com o botão abaixo */
+}
+
+/* Ajuste do Botão/Campo de Data (Menor) */
+.input-data {
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    color: var(--cor-texto);
+    background-color: #f0f2f5;
+    border: 1px solid var(--cor-azul); /* Borda mais fina */
+    border-radius: 6px; /* Arredondamento menor */
+    padding: 4px 8px; /* Deixa o botão bem menor */
+    font-size: 11px; /* Fonte menor */
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    width: auto; /* Ocupa apenas o tamanho necessário */
+    min-width: 100px;
+}
+
+/* Estilo da Caixa Azul de Descrição da Tarefa */
+textarea.caixa-azul {
+    width: 100%;
+    min-height: 80px;
+    background-color: var(--cor-azul);
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    color: white;
+    font-family: var(--fonte-texto);
+    font-size: 16px;
+    resize: vertical; /* Permite aumentar a caixa se precisar */
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+textarea.caixa-azul::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+textarea.caixa-azul:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(130, 36, 131, 0.3); /* Brilho roxo ao clicar */
+}
+
+#dia-semana::placeholder {
+    opacity: 0.4; /* Controla a transparência (0.1 é quase invisível, 0.9 é bem forte) */
+}
+
+/* --- ESTILOS DO PAINEL DE DIAS (DASHBOARD) --- */
+#grid-dias {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.semana-container {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.titulo-semana {
+    font-family: var(--fonte-titulos);
+    color: var(--cor-roxa);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: left;
+    border-bottom: 2px solid var(--cor-cinza-input);
+    padding-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.dias-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 dias lado a lado */
+    gap: 10px;
+}
+
+.dia-btn {
+    background-color: var(--cor-azul);
+    color: white;
+    border-radius: 10px;
+    padding: 12px 5px;
+    font-family: var(--fonte-texto);
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.dia-btn:hover {
+    background-color: var(--cor-roxa);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Botão de dia concluído (Verde) */
+.dia-btn.concluido {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+/* Menu de Sugestões de Tarefas */
+.menu-tarefas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.btn-menu-tarefa {
+    background-color: var(--cor-cinza-input);
+    color: var(--cor-texto);
+    padding: 15px;
+    border-radius: 15px;
+    border: none;
+    font-family: var(--fonte-texto);
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-menu-tarefa:hover {
+    background-color: var(--cor-azul);
+    color: white;
+}
+
+/* Estilo das Tabelas de Tarefas */
+.titulo-categoria {
+    color: var(--cor-azul);
+    font-family: var(--fonte-titulos);
+    font-size: 2.5rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.tabela-tarefas {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.tabela-tarefas td {
+    padding: 15px;
+    background-color: rgba(207, 212, 217, 0.3); /* Fundo cinza claro transparente */
+    border-bottom: 3px solid white; /* Linha branca separando as tarefas */
+}
+
+/* Coluna dos ícones */
+.tabela-tarefas td:last-child {
+    width: 60px;
+    text-align: center;
+    font-size: 1.5rem;
+    border-left: 3px solid white; /* Linha branca separando o texto do ícone */
+    vertical-align: middle;
+}
+
+/* Estilos para as Tabelas de Tarefas */
+.tabela-tarefas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #f0f2f5; /* Fundo cinza claro */
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabela-tarefas td {
+    padding: 15px;
+    border-bottom: 3px solid white; /* Linha branca horizontal */
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.tabela-tarefas tr:last-child td {
+    border-bottom: none;
+}
+
+.tabela-tarefas td:first-child {
+    width: 85%;
+}
+
+.tabela-tarefas td:last-child {
+    width: 15%;
+    text-align: center;
+    vertical-align: middle;
+    border-left: 3px solid white; /* Linha branca vertical separando os ícones */
+    font-size: 1.5rem;
+    background-color: #e2e6ea; /* Cinza um pouco mais escuro para a coluna dos ícones */
+}
+
+.tabela-tarefas strong {
+    font-weight: bold;
+}
+
+.titulo-categoria {
+    font-family: var(--fonte-titulos);
+    color: var(--cor-azul);
+    font-size: 2rem;
+    text-align: left;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilos para as Tabelas de Tarefas */
+.tabela-tarefas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #f0f2f5; /* Fundo cinza claro */
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabela-tarefas td {
+    padding: 15px;
+    border-bottom: 3px solid white; /* Linha branca horizontal */
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tabela-tarefas tr:last-child td {
+    border-bottom: none;
+}
+
+/* Coluna do texto */
+.tabela-tarefas td:first-child {
+    width: 85%;
+}
+
+/* Coluna dos emojis */
+.tabela-tarefas td:last-child {
+    width: 15%;
+    text-align: center;
+    font-size: 1.5rem; /* Deixa os emojis maiores */
+}
+
+.titulo-categoria {
+    font-family: var(--fonte-titulos);
+    color: var(--cor-azul);
+    font-size: 2rem;
+    text-align: left;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* --- ESTILOS DO VERIFICADOR SEMANAL --- */
+.vs-pergunta-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.vs-pergunta-texto {
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    width: 70%;
+    color: var(--cor-texto);
+}
+
+.vs-botoes-sn {
+    display: flex;
+    gap: 10px;
+}
+
+.vs-btn-sn {
+    background-color: var(--cor-cinza-input);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #555;
+    transition: 0.3s;
+}
+
+.vs-btn-sn.selecionado {
+    background-color: var(--cor-roxa);
+    color: white;
+}
+
+.vs-texto-motivacional {
+    background-color: rgba(56, 163, 209, 0.1);
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 13px;
+    text-align: center;
+    color: #555;
+    margin: 20px 0;
+    line-height: 1.5;
+}
+
+.vs-dias-semana {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    background-color: white;
+    padding: 15px;
+    border-radius: 15px;
+}
+
+.vs-dia-circulo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--cor-roxa);
+}
+
+.vs-circulo {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--cor-roxa);
+    background-color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.vs-circulo.ativo {
+    background-color: var(--cor-roxa);
+}
+
+.vs-textarea {
+    width: 100%;
+    background-color: white;
+    border: 2px solid var(--cor-cinza-input);
+    border-radius: 15px;
+    padding: 15px;
+    font-family: var(--fonte-texto);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.vs-textarea:focus {
+    border-color: var(--cor-azul);
+    outline: none;
+}
+
+/* --- ESTILOS DO RASTREADOR DE DIAS (CAIXA ROXA) --- */
+.caixa-roxa {
+    background-color: var(--cor-roxa);
+    border-radius: 20px;
+    padding: 25px 15px;
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.titulo-rastreador {
+    font-family: var(--fonte-texto);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.dias-semana-rastreador {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.dia-rastreador {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.nome-dia {
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.emoji-dia {
+    font-size: 2.5rem; /* Tamanho grande igual à imagem */
+    line-height: 1;
+}
+
+.frase-dia {
+    font-family: var(--fonte-texto);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    min-height: 30px; /* Mantém tudo alinhado mesmo com 2 linhas de texto */
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+/* O quadradinho branco no final */
+.checkbox-dia {
+    width: 22px;
+    height: 22px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Quando o usuário clica no dia */
+.dia-rastreador.marcado .checkbox-dia {
+    background-color: #4CAF50; /* Fica verde */
+}
+
+.dia-rastreador.marcado .checkbox-dia::after {
+    content: '✔'; /* Aparece um check */
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* --- SPINNER DE CARREGAMENTO --- */
+.loading-overlay {
+    position: fixed; /* Fica fixo na tela */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95); /* Fundo branco semi-transparente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Garante que fique por cima de tudo */
+    font-family: var(--fonte-texto);
+    color: var(--cor-roxa);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid var(--cor-roxa); /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite; /* Animação de rotação */
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- RESPONSIVIDADE (CELULARES E TABLETS) --- */
+@media (max-width: 600px) {
+    /* Reduz ainda mais o espaço interno no celular para sobrar espaço para o texto */
+    #tela-login, 
+    #tela-dashboard, 
+    #tela-dia, 
+    #tela-verificador-semanal, 
+    .tela-onboarding {
+        padding: 25px 15px !important;
+        width: 100% !important; /* Deixa uma pequena margem fora do card */
+    }
+    /* 1. Mantém o Vocabulário lado a lado */
+    .cabecalho-vocabulario, .grid-vocabulario {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .input-cinza {
+        font-size: 12px !important;
+        padding: 8px !important;
+    }
+    .cabecalho-vocabulario {
+        font-size: 11px !important;
+    }
+
+    /* 2. Ajusta os Emojis do Verificador Diário para caberem na tela */
+    .opcoes-empenho {
+        gap: 5px !important;
+    }
+    .btn-empenho {
+        padding: 8px 2px !important;
+        font-size: 5px !important;
+    }
+    .emoji-grande {
+        font-size: 15px !important;
+    }
+
+    /* 3. Ajusta as Barras Roxas de Progresso */
+    .linha-pratica {
+        padding: 8px 10px !important;
+    }
+    .nome-habilidade {
+        font-size: 13px !important;
+        width: 65px !important;
+    }
+    .emoji-pratica {
+        font-size: 24px !important;
+    }
+    .btn-porcentagem {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 9px !important;
+    }
+    .porcentagens {
+        gap: 3px !important;
+    }
+
+    /* Ajustes específicos para a caixa roxa do Verificador Semanal */
+    .caixa-roxa {
+        padding: 15px 10px !important;
+    }
+
+    .dias-semana-rastreador {
+        gap: 2px !important; /* Reduz o espaço entre os dias */
+    }
+
+    .nome-dia {
+        font-size: 0.75rem !important; /* Diminui o texto do dia (Seg, Ter...) */
+    }
+
+    .emoji-dia {
+        font-size: 1.5rem !important; /* Diminui o tamanho do emoji */
+    }
+
+    .frase-dia {
+        font-size: 0.6rem !important; /* Diminui a frase de incentivo */
+        min-height: 25px !important;
+    }
+
+    .circulo-dia {
+        width: 15px !important;
+        height: 15px !important;
+    }
+    
+    /* Garante que as caixas de texto não vazem */
+    .textarea-onboarding, 
+    .vs-textarea, 
+    textarea.caixa-azul {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Ajusta a tela de Objetivos e Metas para quebrar linha em telas pequenas */
+    .texto-onboarding {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Ajusta os inputs dentro do texto de objetivos para não forçarem a largura */
+    .input-linha {
+        max-width: 100%;
+        flex: 1 1 auto;
+    }
+
+    /* Aumenta a fonte do texto abaixo dos emojis do verificador diario*/
+    .btn-empenho {
+        font-size: 12px !important; /* Aumentado de 10px para 12px */
+        padding: 8px 5px !important;
+    }
+
+    /* Reduz o título principal do Dia */
+    h1.titulo-dia {
+        font-size: 2.5rem !important; /* Reduzido */
+    }
+    
+    /* Garante que o título e o campo de digitar o dia tenham o mesmo tamanho no celular */
+    h1.titulo-dia, 
+    #dia-semana {
+        font-size: 2.5rem !important; 
+        line-height: 1 !important;
+    }
+
+    /* Reduz o input de data ao lado do título */
+    .input-data {
+        width: auto !important; /* Garante que continue pequeno no celular */
+        font-size: 12px !important;
+    }
+
+    /* Reduz os subtítulos azuis (Tarefa, Vocabulário) */
+    h2.titulo-tarefa, 
+    h2.titulo-vocabulario {
+        font-size: 1rem !important;
+    }
+    
+    .bloco-assinatura {
+    text-align: center !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.bloco-assinatura img {
+    margin-top: 15px; /* Mantém o espaço do texto de cima */
+    margin-bottom: -15px; /* Mantém o espaço do texto de baixo */
+    margin-right: -15px; /* Puxa o nome "Geovani Pires" para mais perto. Ajuste esse valor até ficar bom */
+    display: inline-block;
+    max-width: 200px; /* Ajuste o tamanho da assinatura se necessário */
+}
+
+.bloco-assinatura p {
+    text-align: center !important;
+    margin: 5px 0;
+}
+
+/* Diminui os botões SIM e NÃO do Verificador Semanal */
+    .vs-btn-sn {
+        padding: 7px 9px !important; /* Reduz o espaço interno do botão */
+        font-size: 12px !important;   /* Diminui o tamanho da letra */
+    }
+}
+    .cabecalho-dia-titulo {
+        gap: 5px !important;
+    }
+
+    #dia-semana {
+        font-size: 2.5rem !important; /* Diminui a fonte do input no celular para caber */
+    }
+
+/* Diminui a fonte das perguntas abertas no Verificador Semanal */
+#tela-verificador-semanal h3 {
+    font-size: 14px !important; /* Ajuste este valor se quiser maior ou menor */
+    margin-top: 20px !important; /* Reduz um pouco o espaço em cima para caber melhor */
+}
+
+/* Opcional: Diminui também a fonte do texto que o usuário digita dentro da caixa */
+.vs-textarea {
+    font-size: 14px !important;
+    }
+}
+
+.btn-voltar-onboarding {
+    background-color: transparent;
+    color: #999;
+    border: none;
+    font-family: var(--fonte-texto);
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    transition: color 0.3s;
+}
+
+.btn-voltar-onboarding:hover {
+    color: var(--cor-roxa);
+    transform: none; /* Remove o efeito de crescer do botão principal */
+}
+
+/* Contêiner flexível para o título 'Dia #X' */
+.cabecalho-dia-titulo {
+    display: flex;
+    align-items: center; /* Voltamos para o center, mas agora com a altura corrigida */
+    justify-content: flex-start;
+    gap: 4px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+/* Título (DIA #X -) */
+h1.titulo-dia {
+    white-space: nowrap;
+    margin: 0;
+    line-height: 1; /* Força a altura exata da fonte */
+}
+
+/* Campo de digitar o dia da semana */
+#dia-semana {
+    background: transparent;
+    border: none;
+    border-radius: 0 !important; /* Remove a borda invisível que estava cortando o 'D' */
+    font-family: var(--fonte-dias);
+    font-size: 2.5rem !important; /* Força o tamanho exato do título */
+    line-height: 1; /* Iguala a altura com a do título */
+    color: var(--cor-azul);
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    box-shadow: none;
+    overflow: visible; /* Garante que as perninhas da letra cursiva não sumam */
+}
+
+#dia-semana:focus {
+    box-shadow: none;
+    border-bottom: 2px dashed var(--cor-cinza-input);
+}
+
+.topo-logo {
+    text-align: center;
+    margin-top: -40px;
+    margin-bottom: -25px;
+    width: 100%;
+}
+
+.imagem-titulo {
+    max-width: 90%; /* Garante que não vaze da tela no celular */
+    width: 400px; /* Tamanho máximo no computador (ajuste se quiser maior ou menor) */
+    height: auto;
+}
+
+/* Estilos da Logo do Rodapé */
+.rodape-logo {
+    text-align: center;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.imagem-rodape {
+    max-width: 120px; /* Tamanho da logo (aumente ou diminua se precisar) */
+    height: auto;
+    opacity: 1; /* Deixa a logo levemente transparente para dar um efeito de rodapé elegante */
+}
+        
+/* Botão de adicionar novo campo de palavra/expressao e exemplo nos dias */
+.btn-adicionar-campo {
+    background-color: #d1d5db; /* Cinza claro */
+    color: #374151; /* Texto escuro */
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto; /* Centraliza o botão */
+}
+
+.btn-adicionar-campo:hover {
+    background-color: #9ca3af; /* Fica um pouco mais escuro ao passar o mouse */
+}
+
+/* GRID DE PROGRESSO GERAL */
+.grid-estatisticas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.card-estatistica {
+    background-color: var(--cor-cinza-input);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.card-estatistica h3 {
+    font-family: var(--fonte-texto);
+    font-size: 14px;
+    color: #555;
+    margin: 0 0 10px 0;
+}
+
+.card-estatistica p {
+    font-family: var(--fonte-titulos);
+    font-size: 36px;
+    color: var(--cor-roxa);
+    margin: 0;
+}
+
+.barra-empenho-bg {
+    background-color: var(--cor-cinza-input);
+    border-radius: 10px;
+    height: 20px;
+    width: 100%;
+    margin-bottom: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.barra-empenho-fill {
+    background-color: var(--cor-azul);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    transition: width 0.5s ease;
+}
+
+/* 1. Regra para o Celular (Ocupa o espaço normal) */
+#tela-estatisticas {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* 2. Regra para o Computador (Fura o bloqueio do container e estica) */
+@media screen and (min-width: 768px) {
+    #tela-estatisticas {
+        width: 900px !important; /* Largura ideal para o PC */
+        max-width: 95vw !important; /* Margem de segurança */
+
+        /* O truque mágico para centralizar ignorando o container: */
+        position: relative !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}
+
+/* Força a quebra de linha para 'dias estudados' e 'palavras novas' apenas em telas de celular */
+@media (max-width: 767px) {
+    .quebra-celular {
+        display: block;
+    }
+}
+
+@media print {
+    body {
+        -webkit-print-color-adjust: exact; /* Para Chrome/Safari */
+        print-color-adjust: exact; /* Padrão */
+    }
+    /* Evita quebra de página dentro de elementos importantes */
+    .semana-container, .barra-container, .caixa-azul, ul {
+        page-break-inside: avoid !important;
+    }
+    /* Força uma nova página antes de títulos grandes, se necessário */
+    h2 {
+        page-break-before: auto;
+    }
+    /* Garante que o conteúdo flua sem limites de altura fixos */
+    #tela-estatisticas {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
+
+.rodape {
+    margin-top: 40px;
+    padding: 20px;
+    text-align: center; /* Esta linha centraliza o texto e elementos inline */
+    font-size: 0.85rem;
+    color: #777;
+    border-top: 1px solid #eee;
+    width: 100%;
+    max-width: 600px; /* Alinha com a largura máxima dos cards */
+    box-sizing: border-box;
+    /* Para centralizar o bloco do rodapé na página, se ele tiver uma largura máxima */
+    margin-left: auto;
+    margin-right: auto;
+}
