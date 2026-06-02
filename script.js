@@ -1,11 +1,11 @@
 // Suas configurações do Firebase aqui
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_AUTH_DOMAIN",
-    projectId: "SEU_PROJECT_ID",
-    storageBucket: "SEU_STORAGE_BUCKET",
-    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-    appId: "SEU_APP_ID"
+    apiKey: "AIzaSyCDRupoBxBFTovsPdasQPeOBbs3f8Uq1O0",
+    authDomain: "plano-de-ingles-teste.firebaseapp.com",
+    projectId: "plano-de-ingles-teste",
+    storageBucket: "plano-de-ingles-teste.firebasestorage.app",
+    messagingSenderId: "868459740241",
+    appId: "1:868459740241:web:40be7c54dee9ee39abcc70"
 };
 
 // Inicializa o Firebase
