@@ -927,19 +927,21 @@ async function abrirEstatisticas() {
         let somaHabilidades = { oralidade: 0, escuta: 0, escrita: 0, leitura: 0 };
         let contHabilidades = { oralidade: 0, escuta: 0, escrita: 0, leitura: 0 };
 
-        // Para os gráficos semanais (13 semanas para 91 dias)
-        let palavrasPorSemana = Array(21).fill(0);
+        // Para os gráficos semanais (21 semanas)
+        let NUM_SEMANAS = 21;
+        let palavrasPorSemana = Array(NUM_SEMANAS).fill(0);
         let habPorSemana = {
-            oralidade: Array(21).fill(0), escuta: Array(21).fill(0),
-            escrita: Array(21).fill(0), leitura: Array(21).fill(0),
-            contagem: Array(21).fill(0)
-        };
+            oralidade: Array(NUM_SEMANAS).fill(0),
+            escuta: Array(NUM_SEMANAS).fill(0),
+            escrita: Array(NUM_SEMANAS).fill(0),
+            leitura: Array(NUM_SEMANAS).fill(0),
+};
 
         snapshot.forEach(doc => {
             const dados = doc.data();
             const idDoc = doc.id; // Ex: "dia_1", "dia_15"
             const numeroDia = parseInt(idDoc.replace('dia_', ''));
-            const indiceSemana = Math.ceil(numeroDia / 7) - 1; // 0 a 12
+            const indiceSemana = Math.ceil(numeroDia / 7) - 1;
 
             if (dados.data && dados.data.trim() !== '') diasEstudados++;
 
@@ -954,7 +956,7 @@ async function abrirEstatisticas() {
                     }
                 }
             }
-            if (indiceSemana >= 0 && indiceSemana < 21) {
+            if (indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
                 palavrasPorSemana[indiceSemana] += palavrasNesteDia;
             }
 
@@ -974,14 +976,14 @@ async function abrirEstatisticas() {
                     somaHabilidades[h] += valor;
                     contHabilidades[h]++;
 
-                    if (indiceSemana >= 0 && indiceSemana < 21) {
+                    if (indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
                         habPorSemana[h][indiceSemana] += valor;
                         praticouHabilidadeHoje = true;
                     }
                 }
             });
 
-            if (praticouHabilidadeHoje && indiceSemana >= 0 && indiceSemana < 21) {
+            if (praticouHabilidadeHoje && indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
                 habPorSemana.contagem[indiceSemana]++;
             }
         });
@@ -1020,7 +1022,7 @@ async function abrirEstatisticas() {
         }
 
         // --- GRÁFICOS ---
-        const labelsSemanas = Array.from({length: 21}, (_, i) => `Sem ${i+1}`);
+        const labelsSemanas = Array.from({length: NUM_SEMANAS}, (_, i) => `Sem ${i+1}`);
 
         // Gráfico de Palavras
         if (chartPalavras) chartPalavras.destroy();
@@ -1041,7 +1043,7 @@ async function abrirEstatisticas() {
 
         // Preparar dados de média semanal para o gráfico de habilidades
         let mediaHabSemanal = { oralidade: [], escuta: [], escrita: [], leitura: [] };
-        for (let i = 0; i < 21; i++) {
+        for (let i = 0; i < NUM_SEMANAS; i++) {
             let div = habPorSemana.contagem[i] > 0 ? habPorSemana.contagem[i] : 1;
             mediaHabSemanal.oralidade.push(habPorSemana.oralidade[i] / div);
             mediaHabSemanal.escuta.push(habPorSemana.escuta[i] / div);
