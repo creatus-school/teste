@@ -1,12 +1,12 @@
 // 1. CONFIGURAÇÃO DO FIREBASE
 // COLE SUAS CHAVES DO FIREBASE AQUI
 const firebaseConfig = {
-    apiKey: "AIzaSyCv6xDm47o2Ouno3fDs4KxugMQlWTdd3Hc",
-    authDomain: "plano-de-estudos-ingles.firebaseapp.com",
-    projectId: "plano-de-estudos-ingles",
-    storageBucket: "plano-de-estudos-ingles.firebasestorage.app",
-    messagingSenderId: "454472422469",
-    appId: "1:454472422469:web:48815b3f02df06386cbf2c"
+    apiKey: "AIzaSyCDRupoBxBFTovsPdasQPeOBbs3f8Uq1O0",
+    authDomain: "plano-de-ingles-teste.firebaseapp.com",
+    projectId: "plano-de-ingles-teste",
+    storageBucket: "plano-de-ingles-teste.firebasestorage.app",
+    messagingSenderId: "868459740241",
+    appId: "1:868459740241:web:40be7c54dee9ee39abcc70"
 };
 
 firebase.initializeApp(firebaseConfig);
