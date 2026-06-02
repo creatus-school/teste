@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plano de Estudos - Inglês</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Configurações de Compartilhamento (WhatsApp, Redes Sociais) -->
+    <meta property="og:title" content="Plano de Estudos - Inglês">
+    <meta property="og:description" content="Acompanhe seu progresso diário, organize sua rotina e alcance a fluência no inglês com este plano de estudos personalizável de 91 dias.">
+    <meta property="og:image" content="https://app.creatuspolyglot.com.br/imagem_de_capa.png">
+    <meta property="og:url" content="https://app.creatuspolyglot.com.br/">
+    <meta property="og:type" content="website">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Biblioteca de Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Link para o seu arquivo CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- SPINNER DE CARREGAMENTO -->
+    <div id="loading-spinner" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+    </div>
+
+    <!-- LOGO / TÍTULO DO TOPO -->
+        <div  id="logo-topo-site" class="topo-logo escondido">
+            <img src="plano_de_estudos-titulo.png" alt="Plano de Estudos" class="imagem-titulo">
+        </div>
+
+    <div class="container">
+
+        <!-- TELA DE LOGIN -->
+        <div id="tela-login" class="tela-onboarding escondido">
+            <!-- Espaço para a sua Logo -->
+            <img src="logo.png" alt="Creatus Polyglot School" class="logo-login">
+
+            <h1 class="titulo-onboarding">Acesse</h1>
+
+            <input type="text" id="email" class="input-login" placeholder="E-mail">
+            <input type="password" id="senha" class="input-login" placeholder="Senha" style="margin-bottom: 20px;">
+
+            <!-- Botão de Entrar com Email e Senha -->
+            <button onclick="fazerLogin()" style="width: 50%; display: block; margin: 20px auto;">Entrar</button>
+
+            <div style="margin: 15px 0; color: #999; font-family: var(--fonte-texto); font-weight: bold; font-size: 14px;"></div>
+
+        <div style="width: 100%; max-width: 600px; text-align: center; margin-top: 20px;">
+                <p style="color: #666; font-size: 1rem; margin: 0;">
+                    Problema de acesso? <a href="https://wa.me5511920898795" target="_blank" style="color: var(--cor-azul); font-weight: bold; text-decoration: none;">Fale com o suporte</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- TELA DASHBOARD (DIAS) -->
+        <!-- TELA 1: BOAS VINDAS -->
+<div id="tela-ob-1" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">PARABÉNS!</h1>
+    <p class="texto-onboarding centralizado">
+        Você está prestes a mudar completamente sua maneira de aprender inglês. Prepare-se, porque nos próximos três meses você terá uma experiência de imersão na língua inglesa como jamais vivenciou antes.
+    </p>
+    <p class="texto-onboarding centralizado">
+        E o melhor é que essa será uma prática de aprendizagem 100% personalizável, de acordo com os seus interesses e necessidades e respeitando o seu nível.
+    </p>
+    <p class="texto-onboarding centralizado">
+        Espero que você aproveite o processo, pois sua vida poliglota está apenas começando.
+    </p>
+<div class="bloco-assinatura">
+    <p><strong>Um abraço poliglota,</strong></p>
+    <img src="assinatura.png" style="max-width: 200px; height: auto; display: block; margin: 0 auto; margin-bottom: -20px" alt="Assinatura">
+    <p><strong>Geovani Pires</strong></p>
+    <p>Fundador da Creatus Polyglot School</p>
+    <button class="btn-avancar" onclick="avancarOnboarding(1, 2)">começar jornada</button>
+</div>
+</div>
+
+<!-- TELA 2: CONTRATO -->
+<div id="tela-ob-2" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Contrato de Compromisso</h1>
+    <div style="text-align: center; font-size: 1.2rem; line-height: 2; margin: 30px 0;">
+        Eu, <input type="text" id="ob-nome-contrato" class="input-linha" style="width: 60%; display: inline-block;" placeholder="Seu nome completo">, me comprometo a ser sincero(a) comigo mesmo(a) ao refletir sobre minha dedicação e desempenho para aprender inglês. Vou dar o melhor de mim e assumo total responsabilidade pelo sucesso da minha evolução.
+    </div>
+
+    <div style="margin-top: 50px;">
+        <input type="text" id="ob-assinatura" class="input-linha" style="text-align: center; font-family: var(--fonte-dias); font-size: 2rem; color: var(--cor-azul);" placeholder="Assine seu nome aqui">
+        <p style="font-size: 0.9rem; color: #666;">ASSINATURA</p>
+    </div>
+
+    <p style="font-style: italic; color: #555; margin-top: 40px;">
+        "Se você pensa que pode ou se pensa que não pode, você está certo."<br>
+        - Henry Ford
+    </p>
+    <button class="btn-avancar" onclick="avancarOnboarding(2, 3)">assinar e avançar</button>
+</div>
+
+<!-- TELA 3: TESTE DE NÍVEL -->
+<div id="tela-ob-3" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Descubra seu Nível</h1>
+    <p class="texto-onboarding centralizado">
+        Se você não sabe seu nível de inglês, não tem problema. Clique no botão abaixo para fazer o teste.
+    </p>
+    <div class="qr-code-box">
+        <!-- Substitua o # pelo link real do seu teste -->
+        <a href="https://geovani2.yayforms.link/od71D5z" target="_blank" style="text-decoration: none;">
+            <button style="background-color: var(--cor-roxa); margin: 0;">Fazer Teste de Nivelamento</button>
+        </a>
+    </div>
+    <p class="texto-onboarding centralizado" style="font-size: 0.9rem; color: #666;">
+        Mas atenção! Esse teste não corresponde 100% ao seu nível de conhecimento da língua, por isso é importante que você o use apenas como base geral do seu desempenho linguístico, ok?
+    </p>
+    <button class="btn-avancar" onclick="avancarOnboarding(3, 4)">já sei meu nível</button>
+    <div style="display: block; width: 100%;">
+        <button class="btn-voltar" onclick="avancarOnboarding(3, 2)">Voltar para contrato</button>
+    </div>
+</div>
+
+<!-- TELA 4: INTRO REFLEXÃO -->
+<div id="tela-ob-4" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Hora de Refletir</h1>
+    <p class="texto-onboarding centralizado">
+        Nas páginas seguintes, você irá organizar as atividades que realiza durante a semana e vai encontrar uma série de perguntas que irão te guiar na definição da sua prática de estudos.
+    </p>
+    <p class="texto-onboarding centralizado">
+        É extremamente importante que você responda a essas perguntas com a total sinceridade; afinal, a pessoa mais beneficiada pelos resultados alcançados a partir desses estudos será você.
+    </p>
+    <p class="texto-onboarding centralizado">
+        Reflita bastante e não tenha pressa para encontrar suas respostas. O importante é que elas estejam de acordo com a sua realidade.
+    </p>
+    <button class="btn-avancar" onclick="avancarOnboarding(4, 5)">estou pronto(a)</button>
+</div>
+
+<!-- TELA 5: ATIVIDADES DA SEMANA -->
+<div id="tela-ob-5" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Minha Rotina Semanal</h1>
+    <p class="texto-onboarding">
+        Liste as atividades que você realiza durante a semana e o tempo que dedica a cada uma delas. Isso vai te ajudar a visualizar onde você pode encaixar seus estudos de inglês.
+    </p>
+    <div id="lista-rotina">
+        <!-- Campos de rotina serão adicionados aqui pelo JS -->
+    </div>
+    <button class="btn-adicionar-campo" onclick="adicionarLinhaRotina()">+ Adicionar Atividade</button>
+    <button class="btn-avancar" onclick="avancarOnboarding(5, 6)">avançar</button>
+    <div style="display: block; width: 100%;">
+        <button class="btn-voltar-onboarding" onclick="avancarOnboarding(5, 4)">voltar para reflexão</button>
+    </div>
+</div>
+
+<!-- TELA 6: PRIORIDADES -->
+<div id="tela-ob-6" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Minhas Prioridades</h1>
+    <p class="texto-onboarding">
+        O que é mais importante para você neste momento? Marque as opções que mais se encaixam nos seus objetivos.
+    </p>
+    <div class="lista-atividades">
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-oralidade">
+            <label for="prioridade-oralidade">Oralidade (falar)</label>
+        </div>
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-escuta">
+            <label for="prioridade-escuta">Escuta (ouvir)</label>
+        </div>
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-escrita">
+            <label for="prioridade-escrita">Escrita (escrever)</label>
+        </div>
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-leitura">
+            <label for="prioridade-leitura">Leitura (ler)</label>
+        </div>
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-vocabulario">
+            <label for="prioridade-vocabulario">Vocabulário</label>
+        </div>
+        <div class="atividade-item">
+            <input type="checkbox" id="prioridade-gramatica">
+            <label for="prioridade-gramatica">Gramática/Estruturas</label>
+        </div>
+    </div>
+    <button class="btn-avancar" onclick="avancarOnboarding(6, 7)">avançar</button>
+    <div style="display: block; width: 100%;">
+        <button class="btn-voltar-onboarding" onclick="avancarOnboarding(6, 5)">voltar para rotina semanal</button>
+    </div>
+</div>
+
+<!-- TELA 7: PONTOS FORTES E FRACOS -->
+<div id="tela-ob-7" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Autoavaliação</h1>
+    <p class="texto-onboarding">
+        Reflita sobre seus pontos fortes e fracos no aprendizado de inglês.
+    </p>
+    <h3 style="color: var(--cor-texto); text-align: left; font-size: 1rem; margin-top: 20px;">Quais são seus pontos fortes no inglês?</h3>
+    <textarea id="ob-pontos-fortes" class="textarea-onboarding" placeholder="Ex: Consigo entender músicas, tenho bom vocabulário..."></textarea>
+
+    <h3 style="color: var(--cor-texto); text-align: left; font-size: 1rem;">Quais são seus pontos fracos no inglês?</h3>
+    <textarea id="ob-pontos-fracos" class="textarea-onboarding" placeholder="Ex: Tenho dificuldade em falar, erro a gramática..."></textarea>
+
+    <button class="btn-avancar" onclick="avancarOnboarding(7, 8)">avançar</button>
+    <div style="display: block; width: 100%;">
+        <button class="btn-voltar-onboarding" onclick="avancarOnboarding(7, 6)">voltar para prioridades</button>
+    </div>
+</div>
+
+<!-- TELA 8: OBJETIVOS E METAS -->
+<div id="tela-ob-8" class="tela-onboarding escondido">
+    <h1 class="titulo-onboarding">Meus Objetivos e Metas</h1>
+    <p class="texto-onboarding">
+        Defina seus objetivos de forma clara e específica.
+    </p>
+        <div class="texto-onboarding">
+            Quero chegar ao nível
+            <select id="ob-nivel-meta" style="width: auto; display: inline-block; margin: 0 5px; cursor: pointer; border: 1px solid var(--cor-roxa); border-radius: 15px; padding: 5px 10px; background-color: white; font-family: var(--fonte-texto); font-size: 1rem; color: var(--cor-texto); outline: none;">
+                <option>básico</option>
+                <option>intermediário</option>
+                <option>avançado</option>
+            </select>
+            em <input type="number" id="ob-tempo-meta" class="input-linha" style="width: 60px; text-align: center;">
+            <select id="ob-tipo-tempo" style="width: auto; display: inline-block; margin: 0 5px; cursor: pointer; border: 1px solid var(--cor-roxa); border-radius: 15px; padding: 5px 10px; background-color: white; font-family: var(--fonte-texto); font-size: 1rem; color: var(--cor-texto); outline: none;">
+                <option value="semanas">semanas</option>
+                <option value="meses">meses</option>
+            </select> para <input type="text" id="ob-objetivo" class="input-linha" style="width: 250px; display: inline-block; margin-left: 5px;" placeholder="seu objetivo">.
+            <br><br>
+            Para isso vou me dedicar <input type="number" id="ob-tempo-diario" class="input-linha" style="width: 60px; text-align: center;">
+            <select id="ob-tipo-duracao" style="width: auto; display: inline-block; margin: 0 5px; cursor: pointer; border: 1px solid var(--cor-roxa); border-radius: 15px; padding: 5px 10px; background-color: white; font-family: var(--fonte-texto); font-size: 1rem; color: var(--cor-texto); outline: none;">
+                <option value="minutos">minutos</option>
+                <option value="horas">horas</option>
+            </select> por dia, <input type="number" id="meta-dias" class="input-linha" style="width: 60px; text-align: center;"> dia(s) na semana.
+        </div>
+
+        <button class="btn-avancar" onclick="avancarOnboarding(8, 9)">avançar</button>
+        <div style="display: block; width: 100%;">
+            <button class="btn-voltar-onboarding" onclick="avancarOnboarding(8, 7)">voltar para lista de prioridades</button>
+        </div>
+    </div>
+
+    <!-- TELA 9: SUGESTÕES DE TAREFAS -->
+    <div id="tela-ob-9" class="tela-onboarding escondido">
+        <h1 class="titulo-onboarding">Sugestões de Tarefas</h1>
+        <p class="texto-onboarding">Aqui estão algumas ideias do que você pode fazer nos seus dias de estudo. Escolha as que mais combinam com você!</p>
+
+        <!-- MENU PRINCIPAL DE TAREFAS -->
+        <div id="tela-ob-tarefas">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
+                <button onclick="abrirSubpagina('oralidade')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">🗣️<br>Oralidade</button>
+                <button onclick="abrirSubpagina('escuta')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">🎧<br>Escuta</button>
+                <button onclick="abrirSubpagina('escrita')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">✍🏼<br>Escrita</button>
+                <button onclick="abrirSubpagina('leitura')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">📖<br>Leitura</button>
+                <button onclick="abrirSubpagina('vocabulario')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">🧠<br>Vocabulário</button>
+                <button onclick="abrirSubpagina('estruturas')" style="background-color: var(--cor-azul); padding: 20px; font-size: 1.2rem;">🧱<br>Estruturas</button>
+            </div>
+        </div>
+
+        <!-- SUBPÁGINA: ORALIDADE -->
+        <div id="subpagina-oralidade" class="escondido">
+            <h2 class="titulo-categoria">🗣️ Oralidade</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Clubes de conversação:</strong> encontre algum clube de conversação em inglês que seja do seu nível e com assuntos do seu interesse para praticar suas habilidades de conversação.</td>
+                    <td>🎧<br>✍🏼</td>
+                </tr>
+                <tr>
+                    <td><strong>Trava-línguas:</strong> pratique sua dicção e aumente seu vocabulário por meio de trava-línguas em inglês. Se necessário, procure a pronúncia do trava-língua.</td>
+                    <td>📖<br>🎧</td>
+                </tr>
+                <tr>
+                    <td><strong>Bate-papo com nativos:</strong> pratique suas habilidades de conversação com nativos da língua inglesa e aproveite para fazer amizades no exterior, além de conhecer novos aspectos culturais e quebrar estereótipos. Não esqueça de anotar frases e expressões que você pode utilizar no seu dia a dia.</td>
+                    <td>🎧<br>✍🏼</td>
+                </tr>
+                <tr>
+                    <td><strong>Teatro solitário:</strong> assista, de forma legendada (ou sem legenda, se preferir), a algum filme ou a um episódio de uma série. Leia os diálogos e interprete as falas como se fosse um/a ator/atriz. Isso ajuda a praticar a entonação e ritmo de fala.</td>
+                    <td>🎧<br>📖</td>
+                </tr>
+                <tr>
+                    <td><strong>Simulação de diálogo:</strong> fale em voz alta sobre suas atividades, pensamentos e experiências do dia. Isso ajuda a melhorar a sua fluência e pronúncia.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Apresentações imaginárias:</strong> escolha um tópico que te interesse e faça uma apresentação imaginária curta sobre ele. Fale sobre o assunto como se estivesse conversando com um amigo.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Exprimindo opinião:</strong> assista a um vídeo interessante ou ouça um podcast em língua inglesa. Depois, use seu vocabulário para comentar sobre o que você assistiu ou ouviu, expressando suas opiniões e pontos de vista.</td>
+                    <td>🎧</td>
+                </tr>
+                <tr>
+                    <td><strong>Conversa com IA:</strong> mude o idioma do seu celular para o inglês e converse com o Google/Alexa: faça perguntas e interaja com essas AI produzindo muitas conversas.</td>
+                    <td>🎧</td>
+                </tr>
+            </table>
+
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+        <!-- FIM DA SUBPÁGINA DE ORALIDADE -->
+
+        <!-- SUBPÁGINA DE ESCUTA -->
+        <div id="subpagina-escuta" class="escondido">
+            <h2 class="titulo-categoria">Escuta</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Músicas:</strong> selecione uma música, em inglês, que você gosta e tente entender sem acompanhar com a letra. Faça isso duas vezes. Depois, acompanhe com a letra para verificar o quanto entendeu e anote as frases/expressões que achar necessário.</td>
+                    <td>📖<br>✍🏼</td>
+                </tr>
+                <tr>
+                    <td><strong>Vídeos:</strong> procure no Youtube algum vídeo curto sobre um tema de seu interesse e procure entender o máximo que conseguir. Na segunda tentativa, ative a legenda em inglês e tente aumentar o seu entendimento.</td>
+                    <td>📖</td>
+                </tr>
+                <tr>
+                    <td><strong>Podcast:</strong> assista a um vídeo interessante ou ouça um podcast na língua inglesa. Depois, comente sobre o que você assistiu ou ouviu, expressando suas opiniões e pontos de vista por meio da fala ou textos curtos.</td>
+                    <td>🗣️<br>✍🏼</td>
+                </tr>
+                <tr>
+                    <td><strong>Áudio-texto:</strong> escute áudios sobre temas da atualidade do seu interesse. Anote expressões e/ou vocabulário importantes. Crie situações para utilizar, no seu dia a dia, as expressões e/ou vocabulário aprendidos.</td>
+                    <td>🗣️<br>✍🏼</td>
+                </tr>
+                <tr>
+                    <td><strong>Piadas:</strong> peça para o Google/Alexa te contar uma piada e preste atenção para tentar compreender o humor. Isso vai te ajudar a praticar suas habilidades de compreensão oral e aumentar seu vocabulário.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Você está com sorte:</strong> jogue com o Google o jogo "Are you feeling lucky?" e pratique sua compreensão oral e teste seus conhecimentos sobre acontecimentos e fatos do mundo.</td>
+                    <td>🗣️</td>
+                </tr>
+                <tr>
+                    <td><strong>Rádio:</strong> escolha uma rádio para ouvir as notícias do dia/semana. Se precisar, grave a voz do locutor falando para escutar novamente outras vezes e reforçar a sua escuta com o mesmo áudio.</td>
+                    <td></td>
+                </tr>
+            </table>
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+
+        <!-- SUBPÁGINA DE ESCRITA -->
+        <div id="subpagina-escrita" class="escondido">
+            <h2 class="titulo-categoria">Escrita</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Música:</strong> pratique seu vocabulário e sua ortografia com sua música preferida. Você pode anotar nos seus flashcards as expressões e frases que ainda não conhece para praticar depois.</td>
+                    <td>🎧</td>
+                </tr>
+                <tr>
+                    <td><strong>Diário:</strong> escreva sobre algo importante que aconteceu recentemente com você ou com algum amigo próximo. Você também pode escrever sobre o seu dia de hoje ou sobre os momentos mais marcantes da sua semana.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Cartas:</strong> escreva uma carta para um amigo ou familiar em inglês. Isso pode ser uma ótima maneira de praticar a escrita de forma mais pessoal e divertida.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Resumos:</strong> assista a um filme ou leia um artigo em inglês e, em seguida, escreva um breve resumo sobre o que você entendeu. Isso ajuda a organizar suas ideias e a praticar a escrita de forma concisa.</td>
+                    <td>🎧<br>📖</td>
+                </tr>
+                <tr>
+                    <td><strong>E-mails:</strong> pratique a escrita de e-mails formais e informais em inglês. Pense em situações do dia a dia, como enviar um e-mail para um professor, um colega de trabalho ou um amigo.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Histórias:</strong> crie pequenas histórias em inglês. Você pode começar com algumas frases e ir expandindo a narrativa, adicionando personagens, cenários e diálogos.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Listas:</strong> faça listas em inglês, como listas de compras, tarefas a fazer ou planos para o fim de semana. Isso ajuda a praticar vocabulário e a organizar seus pensamentos.</td>
+                    <td></td>
+                </tr>
+            </table>
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+
+        <!-- SUBPÁGINA DE LEITURA -->
+        <div id="subpagina-leitura" class="escondido">
+            <h2 class="titulo-categoria">Leitura</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Notícias:</strong> leia notícias em inglês sobre temas que te interessam. Comece com artigos mais curtos e vá aumentando a dificuldade gradualmente.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Livros:</strong> escolha um livro em inglês que seja adequado ao seu nível. Comece com livros infantis ou juvenis e, aos poucos, avance para obras mais complexas.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Blogs:</strong> siga blogs em inglês sobre seus hobbies e interesses. Isso te ajuda a aprender vocabulário específico e a se manter atualizado sobre os assuntos que você gosta.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Receitas:</strong> procure receitas em inglês e tente segui-las. Além de praticar a leitura, você pode aprender vocabulário relacionado à culinária.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Letras de músicas:</strong> leia as letras das suas músicas favoritas em inglês. Isso te ajuda a entender o significado das palavras e a melhorar sua pronúncia.</td>
+                    <td>🎧</td>
+                </tr>
+                <tr>
+                    <td><strong>Quadrinhos:</strong> leia quadrinhos ou graphic novels em inglês. As imagens podem te ajudar a entender o contexto e a história, tornando a leitura mais fácil e divertida.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Poemas:</strong> leia poemas em inglês. A poesia pode te ajudar a apreciar a beleza da língua e a expandir seu vocabulário de forma criativa.</td>
+                    <td></td>
+                </tr>
+            </table>
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+
+        <!-- SUBPÁGINA DE VOCABULÁRIO -->
+        <div id="subpagina-vocabulario" class="escondido">
+            <h2 class="titulo-categoria">Vocabulário</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Flashcards:</strong> crie flashcards com palavras e frases novas que você aprender. Use-os para revisar e memorizar o vocabulário de forma eficaz.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Aplicativos:</strong> utilize aplicativos de vocabulário, como Anki, Quizlet ou Memrise, para expandir seu repertório de palavras e expressões.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Sinônimos e antônimos:</strong> procure sinônimos e antônimos para as palavras que você já conhece. Isso te ajuda a enriquecer seu vocabulário e a expressar suas ideias de diferentes formas.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Contexto:</strong> aprenda novas palavras e frases dentro de um contexto. Em vez de memorizar listas isoladas, tente entender como as palavras são usadas em frases e situações reais.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Temas:</strong> organize seu vocabulário por temas, como "viagem", "comida", "trabalho", etc. Isso facilita a memorização e a recuperação das palavras quando você precisar delas.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Jogos:</strong> jogue jogos de vocabulário em inglês, como palavras cruzadas, caça-palavras ou jogos de adivinhação. Isso torna o aprendizado mais divertido e interativo.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Dicionário:</strong> utilize um dicionário bilíngue ou monolíngue para consultar o significado e a pronúncia das palavras. Anote as palavras novas em um caderno ou aplicativo.</td>
+                    <td></td>
+                </tr>
+            </table>
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+
+        <!-- SUBPÁGINA DE ESTRUTURAS -->
+        <div id="subpagina-estruturas" class="escondido">
+            <h2 class="titulo-categoria">Estruturas</h2>
+            <table class="tabela-tarefas">
+                <tr>
+                    <td><strong>Gramática:</strong> estude as regras gramaticais do inglês, como tempos verbais, preposições, artigos, etc. Use livros, sites ou aplicativos de gramática para te ajudar.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Exercícios:</strong> faça exercícios de gramática para praticar o que você aprendeu. Existem muitos recursos online e em livros didáticos.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Frases:</strong> analise a estrutura de frases em inglês. Identifique o sujeito, o verbo, o objeto e outros elementos da frase para entender como elas são construídas.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Comparação:</strong> compare a estrutura das frases em inglês com a estrutura das frases em português. Isso te ajuda a identificar as diferenças e a evitar erros comuns.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Padrões:</strong> identifique padrões gramaticais em textos e conversas em inglês. Isso te ajuda a internalizar as regras e a usá-las de forma mais natural.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Construção:</strong> pratique a construção de frases em inglês, começando com estruturas simples e, aos poucos, avançando para frases mais complexas.</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><strong>Correção:</strong> peça para um professor ou falante nativo corrigir suas frases em inglês. Isso te ajuda a identificar e corrigir seus erros gramaticais.</td>
+                    <td></td>
+                </tr>
+            </table>
+            <button class="btn-avancar" onclick="voltarMenuTarefas()" style="margin-top: 20px;">voltar para o menu</button>
+        </div>
+
+        <button class="btn-avancar" onclick="avancarOnboarding(9, 'dashboard')">finalizar onboarding</button>
+    </div>
+
+        <!-- TELA PRINCIPAL (DASHBOARD) -->
+        <div id="tela-dashboard" class="escondido">
+            <h2 class="titulo-onboarding">Seu Plano de 91 Dias</h2>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <button onclick="abrirTelaAvulsa('tela-ob-1')" style="background-color: #f0f2f5; color: var(--cor-texto); font-size: 0.9rem; padding: 10px 15px; margin-top: 0;">Revisar Onboarding</button>
+                <button onclick="abrirEstatisticas()" style="background-color: var(--cor-azul); font-size: 0.9rem; padding: 10px 15px; margin-top: 0;">Ver Estatísticas</button>
+            </div>
+
+            <div id="grid-dias">
+                <!-- As semanas e dias serão gerados aqui pelo JavaScript -->
+            </div>
+
+            <button onclick="abrirVerificadorSemanal()" style="background-color: var(--cor-roxa); margin-top: 30px;">Verificador Semanal</button>
+            <button onclick="abrirVerificadorProgresso(1)" style="background-color: var(--cor-azul); margin-top: 15px;">Verificador de Progresso (Mês 1)</button>
+            <button onclick="abrirVerificadorProgresso(2)" style="background-color: var(--cor-azul); margin-top: 15px;">Verificador de Progresso (Mês 2)</button>
+            <button onclick="abrirVerificadorProgresso(3)" style="background-color: var(--cor-azul); margin-top: 15px;">Verificador de Progresso (Mês 3)</button>
+
+            <button onclick="resetarProgresso()" style="background-color: #dc3545; margin-top: 30px;">Zerar Progresso</button>
+        </div>
+
+        <!-- TELA DO DIA -->
+        <div id="tela-dia" class="escondido">
+            <div class="cabecalho-dia">
+                <div class="cabecalho-dia-titulo">
+                    <h1 class="titulo-dia">DIA #<span id="numero-dia-atual">1</span> -</h1>
+                    <input type="text" id="dia-semana" placeholder="Dia da Semana">
+                </div>
+                <input type="date" id="data-dia" class="input-data">
+            </div>
+
+            <h2 class="titulo-tarefa">Tarefa de Oralidade</h2>
+            <textarea id="descricao-tarefa" class="caixa-azul" placeholder="Descreva aqui a sua tarefa de oralidade do dia..."></textarea>
+
+            <h3 class="titulo-pratiquei">Hoje eu pratiquei</h3>
+            <div class="linha-pratica">
+                <span class="nome-habilidade">Oralidade</span>
+                <span class="emoji-pratica">🗣️</span>
+                <div class="porcentagens" data-habilidade="oralidade">
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('oralidade', 25)">25%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('oralidade', 50)">50%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('oralidade', 75)">75%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('oralidade', 100)">100%</button>
+                </div>
+                <input type="hidden" id="progresso-oralidade" value="0">
+            </div>
+
+            <div class="linha-pratica">
+                <span class="nome-habilidade">Leitura</span>
+                <span class="emoji-pratica">📖</span>
+                <div class="porcentagens" data-habilidade="leitura">
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('leitura', 25)">25%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('leitura', 50)">50%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('leitura', 75)">75%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('leitura', 100)">100%</button>
+                </div>
+                <input type="hidden" id="progresso-leitura" value="0">
+            </div>
+
+            <div class="linha-pratica">
+                <span class="nome-habilidade">Escuta</span>
+                <span class="emoji-pratica">🎧</span>
+                <div class="porcentagens" data-habilidade="escuta">
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escuta', 25)">25%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escuta', 50)">50%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escuta', 75)">75%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escuta', 100)">100%</button>
+                </div>
+                <input type="hidden" id="progresso-escuta" value="0">
+            </div>
+
+            <div class="linha-pratica">
+                <span class="nome-habilidade">Escrita</span>
+                <span class="emoji-pratica">✍🏼</span>
+                <div class="porcentagens" data-habilidade="escrita">
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escrita', 25)">25%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escrita', 50)">50%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escrita', 75)">75%</button>
+                    <button class="btn-porcentagem" onclick="selecionarPorcentagem('escrita', 100)">100%</button>
+                </div>
+                <input type="hidden" id="progresso-escrita" value="0">
+            </div>
+
+            <div class="divisor-pagina"><span>VOCABULÁRIO</span></div>
+
+            <h2 class="titulo-vocabulario">Novas Palavras e Expressões</h2>
+            <div class="cabecalho-vocabulario">
+                <span>PALAVRA / EXPRESSÃO</span>
+                <span>EXEMPLO DE USO</span>
+            </div>
+            <div id="container-palavras-dia" class="container-palavras">
+                <div class="grid-vocabulario">
+                    <input type="text" id="voc-1" class="input-cinza" placeholder="Palavra / Expressão">
+                    <input type="text" id="exe-1" class="input-cinza" placeholder="Exemplo de uso">
+                    <input type="text" id="voc-2" class="input-cinza" placeholder="Palavra / Expressão">
+                    <input type="text" id="exe-2" class="input-cinza" placeholder="Exemplo de uso">
+                    <input type="text" id="voc-3" class="input-cinza" placeholder="Palavra / Expressão">
+                    <input type="text" id="exe-3" class="input-cinza" placeholder="Exemplo de uso">
+                </div>
+            </div>
+            <button class="btn-adicionar-campo" onclick="adicionarNovoCampo('dia')">+ Adicionar Palavra/Expressão</button>
+
+            <div class="divisor-pagina"><span>EMPENHO</span></div>
+
+            <h2 class="titulo-vocabulario">Como você se sentiu hoje?</h2>
+            <div class="caixa-azul">
+                <div class="opcoes-empenho">
+                    <button class="btn-empenho" data-valor="Frustrado" onclick="selecionarEmpenho(this)">
+                        <span class="emoji-grande">😩</span><br>Frustrado
+                    </button>
+                    <button class="btn-empenho" data-valor="Desmotivado" onclick="selecionarEmpenho(this)">
+                        <span class="emoji-grande">😔</span><br>Desmotivado
+                    </button>
+                    <button class="btn-empenho" data-valor="Neutro" onclick="selecionarEmpenho(this)">
+                        <span class="emoji-grande">😐</span><br>Neutro
+                    </button>
+                    <button class="btn-empenho" data-valor="Motivado" onclick="selecionarEmpenho(this)">
+                        <span class="emoji-grande">😊</span><br>Motivado
+                    </button>
+                    <button class="btn-empenho" data-valor="Animado" onclick="selecionarEmpenho(this)">
+                        <span class="emoji-grande">🤩</span><br>Animado
+                    </button>
+                </div>
+                <input type="hidden" id="empenho-salvo" value="">
+            </div>
+
+            <button onclick="salvarDia()">salvar dia</button>
+            <p id="mensagem-sucesso" class="escondido">Dia salvo com sucesso!</p>
+            <button onclick="voltarAoMenu('tela-dia')" style="background-color: #999;">voltar ao dashboard</button>
+        </div>
+
+        <!-- TELA VERIFICADOR SEMANAL -->
+        <div id="tela-verificador-semanal" class="escondido">
+            <h2 class="titulo-verificador">Verificador Semanal</h2>
+            <h1 class="titulo-onboarding" id="titulo-semana-atual">Semana 1</h1>
+
+            <div class="caixa-roxa">
+                <h3 class="titulo-rastreador">Dias de Empenho</h3>
+                <div class="dias-semana-rastreador">
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Dom')">
+                        <span class="nome-dia">Dom</span>
+                        <span class="emoji-dia">☀️</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Seg')">
+                        <span class="nome-dia">Seg</span>
+                        <span class="emoji-dia">💪</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Ter')">
+                        <span class="nome-dia">Ter</span>
+                        <span class="emoji-dia">📚</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Qua')">
+                        <span class="nome-dia">Qua</span>
+                        <span class="emoji-dia">🧠</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Qui')">
+                        <span class="nome-dia">Qui</span>
+                        <span class="emoji-dia">🎯</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Sex')">
+                        <span class="nome-dia">Sex</span>
+                        <span class="emoji-dia">🚀</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                    <div class="dia-rastreador" onclick="toggleDia(this, 'Sáb')">
+                        <span class="nome-dia">Sáb</span>
+                        <span class="emoji-dia">🎉</span>
+                        <span class="frase-dia"></span>
+                        <div class="checkbox-dia"></div>
+                    </div>
+                </div>
+                <input type="hidden" id="vs-dias-marcados" value="[]">
+            </div>
+
+            <div class="vs-pergunta-container">
+                <span class="vs-pergunta-texto">Consegui cumprir o tempo de estudo que planejei?</span>
+                <div class="vs-botoes-sn">
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q1', 'SIM')">SIM</button>
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q1', 'NÃO')">NÃO</button>
+                </div>
+                <input type="hidden" id="vs-q1" value="">
+            </div>
+
+            <div class="vs-pergunta-container">
+                <span class="vs-pergunta-texto">As tarefas que escolhi foram adequadas para o meu nível?</span>
+                <div class="vs-botoes-sn">
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q2', 'SIM')">SIM</button>
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q2', 'NÃO')">NÃO</button>
+                </div>
+                <input type="hidden" id="vs-q2" value="">
+            </div>
+
+            <div class="vs-pergunta-container">
+                <span class="vs-pergunta-texto">Me senti motivado(a) durante a semana?</span>
+                <div class="vs-botoes-sn">
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q3', 'SIM')">SIM</button>
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q3', 'NÃO')">NÃO</button>
+                </div>
+                <input type="hidden" id="vs-q3" value="">
+            </div>
+
+            <div class="vs-pergunta-container">
+                <span class="vs-pergunta-texto">Percebi alguma evolução no meu inglês?</span>
+                <div class="vs-botoes-sn">
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q4', 'SIM')">SIM</button>
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q4', 'NÃO')">NÃO</button>
+                </div>
+                <input type="hidden" id="vs-q4" value="">
+            </div>
+
+            <div class="vs-pergunta-container">
+                <span class="vs-pergunta-texto">Consegui manter a consistência nos estudos?</span>
+                <div class="vs-botoes-sn">
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q5', 'SIM')">SIM</button>
+                    <button class="vs-btn-sn" onclick="selecionarSimNao(this, 'vs-q5', 'NÃO')">NÃO</button>
+                </div>
+                <input type="hidden" id="vs-q5" value="">
+            </div>
+
+            <div class="vs-texto-motivacional">
+                "O sucesso é a soma de pequenos esforços repetidos dia após dia."
+            </div>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Quais foram os pontos positivos da sua semana de estudos?</h3>
+            <textarea id="vs-positivos" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Quais foram os pontos negativos da sua semana de estudos?</h3>
+            <textarea id="vs-negativos" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">O que você pode fazer para melhorar na próxima semana?</h3>
+            <textarea id="vs-melhorar" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <button onclick="salvarVerificadorSemanal()">salvar verificador semanal</button>
+            <p id="msg-sucesso-vs" class="escondido" style="color: green; font-weight: bold; margin-top: 15px;">Salvo com sucesso!</p>
+            <button onclick="voltarDashboardVS()" style="background-color: #999;">voltar ao dashboard</button>
+        </div>
+
+        <!-- TELA VERIFICADOR DE PROGRESSO (MENSAL) -->
+        <div id="tela-verificador-progresso" class="escondido">
+            <h2 class="titulo-verificador">Verificador de Progresso</h2>
+            <h1 class="titulo-onboarding" id="titulo-mes-atual">Mês 1</h1>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Qual o seu nível de inglês atual? (Básico, Intermediário, Avançado)</h3>
+            <textarea id="vp-q1" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Você conseguiu cumprir as metas que estabeleceu para este mês? Se não, o que te impediu?</h3>
+            <textarea id="vp-q2" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Quais foram os maiores desafios que você enfrentou neste mês? Como você os superou ou pretende superá-los?</h3>
+            <textarea id="vp-q3" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Quais foram as suas maiores conquistas e aprendizados neste mês?</h3>
+            <textarea id="vp-q4" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Você se sente mais confiante e motivado(a) para continuar aprendendo? Por quê?</h3>
+            <textarea id="vp-q5" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Quais são seus objetivos para o próximo mês?</h3>
+            <textarea id="vp-q6" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">As estratégias de estudo que você tem utilizado ao longo dessas semanas? Elas têm sido eficazes? Se não, o que eu posso fazer para me manter mais motivado/a?</h3>
+            <textarea id="vp-q7" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Tenho praticado a conversação com nativos/falantes do idioma? Se sim, como tem sido essa experiência? Se não, o que tem me impedido de fazer isso? Como posso superar essa dificuldade?</h3>
+            <textarea id="vp-q8" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <h3 style="color: var(--cor-texto); text-align: left; font-size: 16px;">Estou conseguindo entender e aplicar o conhecimento sobre a estrutura da língua? Se não, quais técnicas adicionais eu poderia adotar para melhorar isso?</h3>
+            <textarea id="vp-q9" class="vs-textarea" placeholder="Escreva aqui..."></textarea>
+
+            <button onclick="salvarVerificadorProgresso()" style="margin-top: 20px;">salvar verificador de progresso</button>
+            <p id="msg-sucesso-vp" class="escondido" style="color: green; font-weight: bold; margin-top: 15px;">Salvo com sucesso!</p>
+            <button onclick="voltarDashboardVP()" style="background-color: #999;">voltar ao dashboard</button>
+        </div>
+
+        <!-- TELA DE ESTATÍSTICAS -->
+        <div id="tela-estatisticas" class="escondido">
+            <h2 class="titulo-verificador">Minhas Estatísticas</h2>
+            <h1 class="titulo-onboarding">Progresso Geral</h1>
+
+            <div class="grid-estatisticas">
+                <div class="card-estatistica">
+                    <h3>Dias Estudados</h3>
+                    <p id="stat-dias">0</p>
+                </div>
+                <div class="card-estatistica">
+                    <h3>Novas Palavras <span class="quebra-celular"></span> Aprendidas</h3>
+                    <p id="stat-palavras">0</p>
+                </div>
+            </div>
+
+            <h2 class="titulo-vocabulario" style="text-align: center;">Empenho Geral</h2>
+            <div id="stat-empenho-container" style="margin-bottom: 30px;">
+                <!-- Barras de empenho serão geradas aqui -->
+            </div>
+
+            <h2 class="titulo-vocabulario" style="text-align: center;">Habilidades Médias</h2>
+            <div id="stat-habilidades-container" style="margin-bottom: 30px;">
+                <!-- Barras de habilidades serão geradas aqui -->
+            </div>
+
+            <h2 class="titulo-vocabulario" style="text-align: center;">Gráfico de Palavras por Semana</h2>
+            <canvas id="graficoPalavras" style="max-height: 300px; margin-bottom: 30px;"></canvas>
+
+            <h2 class="titulo-vocabulario" style="text-align: center;">Gráfico de Habilidades por Semana</h2>
+            <canvas id="graficoHabilidades" style="max-height: 300px; margin-bottom: 30px;"></canvas>
+
+            <button id="btn-baixar-pdf" onclick="baixarRelatorioPDF()">Baixar Relatório em PDF</button>
+            <button onclick="voltarDashboardEstatisticas()" style="background-color: #999;">voltar ao dashboard</button>
+        </div>
+
+    </div>
+
+        <!-- LOGO DO RODAPÉ -->
+        <div id="logo-rodape-site" class="rodape-logo escondido">
+            <img src="logo.png" alt="Minha Logo" class="imagem-rodape">
+        </div>
+
+        <!-- Link para o seu arquivo JavaScript externo -->
+        <script src="script.js"></script>
+
+    <footer class="rodape">
+        <p class="rodape-texto">&copy; 2026 Creatus Polyglot School. Todos os direitos reservados.</p>
+        <p class="rodape-texto">Desenvolvido por Geovani Pires.</p>
+    </footer>
+
+</body>
+</html>
