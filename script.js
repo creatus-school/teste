@@ -153,7 +153,7 @@ function gerarGridDias() {
         // Cria os botões dos dias
         for (let d = 1; d <= diasPorSemana; d++) {
             let numeroDia = (s * diasPorSemana) + d;
-            if (numeroDia > 91) break; // Para não passar de 91
+            if (numeroDia > 147) break; // Para não passar de 91
 
             const btn = document.createElement('div');
             btn.className = 'dia-btn';
