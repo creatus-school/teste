@@ -928,113 +928,143 @@ async function abrirEstatisticas() {
     if (!user) return;
 
     try {
-        const snapshot = await db.collection('alunos').doc(user.uid).collection('dias').get();
+        const snapshot = await db.collection('alunos')
+            .doc(user.uid)
+            .collection('dias')
+            .get();
+
+        const NUM_SEMANAS = 21;     // agora seu plano tem 21 semanas
+        const DIAS_POR_SEMANA = 7;
 
         let diasEstudados = 0;
         let palavrasUnicas = new Set();
         let contagemEmpenho = {};
         let totalEmpenho = 0;
 
-        // Para as médias de habilidades gerais
+        // Médias gerais das habilidades
         let somaHabilidades = { oralidade: 0, escuta: 0, escrita: 0, leitura: 0 };
         let contHabilidades = { oralidade: 0, escuta: 0, escrita: 0, leitura: 0 };
 
-        // Para os gráficos semanais (21 semanas)
-        let NUM_SEMANAS = 21;
+        // Dados por semana
         let palavrasPorSemana = Array(NUM_SEMANAS).fill(0);
         let habPorSemana = {
             oralidade: Array(NUM_SEMANAS).fill(0),
-            escuta: Array(NUM_SEMANAS).fill(0),
-            escrita: Array(NUM_SEMANAS).fill(0),
-            leitura: Array(NUM_SEMANAS).fill(0),
-};
+            escuta:    Array(NUM_SEMANAS).fill(0),
+            escrita:   Array(NUM_SEMANAS).fill(0),
+            leitura:   Array(NUM_SEMANAS).fill(0),
+            contagem:  Array(NUM_SEMANAS).fill(0)
+        };
 
         snapshot.forEach(doc => {
             const dados = doc.data();
-            const idDoc = doc.id; // Ex: "dia_1", "dia_15"
-            const numeroDia = parseInt(idDoc.replace('dia_', ''));
-            const indiceSemana = Math.ceil(numeroDia / 7) - 1;
+            const idDoc = doc.id;            // "dia_1", "dia_92", etc.
+            const numeroDia = parseInt(idDoc.replace('dia_', ''), 10);
 
-            if (dados.data && dados.data.trim() !== '') diasEstudados++;
+            // ignora qualquer coisa fora do plano de 147 dias, por segurança
+            if (isNaN(numeroDia) || numeroDia < 1 || numeroDia > NUM_SEMANAS * DIAS_POR_SEMANA) {
+                return;
+            }
 
-            // Palavras
+            const indiceSemana = Math.ceil(numeroDia / DIAS_POR_SEMANA) - 1; // 0..20
+
+            // conta dias estudados
+            if (dados.data && dados.data.trim() !== '') {
+                diasEstudados++;
+            }
+
+            // PALAVRAS
             let palavrasNesteDia = 0;
-            for(let i=1; i<=50; i++) {
-                if (dados['voc'+i] && dados['voc'+i].trim() !== '') {
-                    let palavraLimpa = dados['voc'+i].trim().toLowerCase();
+            for (let i = 1; i <= 50; i++) {
+                const campo = dados['voc' + i];
+                if (campo && campo.trim() !== '') {
+                    const palavraLimpa = campo.trim().toLowerCase();
                     if (!palavrasUnicas.has(palavraLimpa)) {
                         palavrasUnicas.add(palavraLimpa);
                         palavrasNesteDia++;
                     }
                 }
             }
-            if (indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
-                palavrasPorSemana[indiceSemana] += palavrasNesteDia;
-            }
+            palavrasPorSemana[indiceSemana] += palavrasNesteDia;
 
-            // Empenho
+            // EMPENHO
             if (dados.empenho) {
                 contagemEmpenho[dados.empenho] = (contagemEmpenho[dados.empenho] || 0) + 1;
                 totalEmpenho++;
             }
 
-            // Habilidades
+            // HABILIDADES
             const habs = ['oralidade', 'escuta', 'escrita', 'leitura'];
             let praticouHabilidadeHoje = false;
 
             habs.forEach(h => {
                 if (dados[h]) {
-                    let valor = parseInt(dados[h]);
-                    somaHabilidades[h] += valor;
-                    contHabilidades[h]++;
-
-                    if (indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
+                    let valor = parseInt(dados[h], 10);
+                    if (!isNaN(valor)) {
+                        somaHabilidades[h] += valor;
+                        contHabilidades[h]++;
                         habPorSemana[h][indiceSemana] += valor;
                         praticouHabilidadeHoje = true;
                     }
                 }
             });
 
-            if (praticouHabilidadeHoje && indiceSemana >= 0 && indiceSemana < NUM_SEMANAS) {
+            if (praticouHabilidadeHoje) {
                 habPorSemana.contagem[indiceSemana]++;
             }
         });
 
-        // Atualiza textos
+        // Atualiza os números grandes
         document.getElementById('stat-dias').innerText = diasEstudados;
         document.getElementById('stat-palavras').innerText = palavrasUnicas.size;
 
-        // Renderiza Barras de Empenho
+        // Barras de empenho
         const containerEmpenho = document.getElementById('stat-empenho-container');
-        containerEmpenho.innerHTML = ''; 
+        containerEmpenho.innerHTML = '';
         if (totalEmpenho > 0) {
             for (const [nivel, quantidade] of Object.entries(contagemEmpenho)) {
                 let pct = Math.round((quantidade / totalEmpenho) * 100);
                 containerEmpenho.innerHTML += `
                     <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">${nivel}</div>
-                    <div class="barra-empenho-bg"><div class="barra-empenho-fill" style="width: ${pct}%;">${pct}%</div></div>
+                    <div class="barra-empenho-bg">
+                        <div class="barra-empenho-fill" style="width: ${pct}%;">${pct}%</div>
+                    </div>
                 `;
             }
         }
 
-        // Renderiza Barras de Habilidades (Média Geral)
+        // Barras de habilidades (média geral)
         const containerHabs = document.getElementById('stat-habilidades-container');
         containerHabs.innerHTML = '';
-        const nomesHabs = { oralidade: 'Oralidade', escuta: 'Escuta', escrita: 'Escrita', leitura: 'Leitura' };
-        const coresHabs = { oralidade: '#FF6B6B', escuta: '#4ECDC4', escrita: '#45B7D1', leitura: '#96CEB4' };
+        const nomesHabs = {
+            oralidade: 'Oralidade',
+            escuta:    'Escuta',
+            escrita:   'Escrita',
+            leitura:   'Leitura'
+        };
+        const coresHabs = {
+            oralidade: '#FF6B6B',
+            escuta:    '#4ECDC4',
+            escrita:   '#45B7D1',
+            leitura:   '#96CEB4'
+        };
 
         for (let h in somaHabilidades) {
-            let media = contHabilidades[h] > 0 ? Math.round(somaHabilidades[h] / contHabilidades[h]) : 0;
+            let media = contHabilidades[h] > 0
+                ? Math.round(somaHabilidades[h] / contHabilidades[h])
+                : 0;
             containerHabs.innerHTML += `
                 <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">${nomesHabs[h]}</div>
                 <div class="barra-empenho-bg">
-                    <div class="barra-empenho-fill" style="width: ${media}%; background-color: ${coresHabs[h]};">${media}%</div>
+                    <div class="barra-empenho-fill"
+                         style="width: ${media}%; background-color: ${coresHabs[h]};">
+                        ${media}%
+                    </div>
                 </div>
             `;
         }
 
-        // --- GRÁFICOS ---
-        const labelsSemanas = Array.from({length: NUM_SEMANAS}, (_, i) => `Sem ${i+1}`);
+        // -------- GRÁFICOS --------
+        const labelsSemanas = Array.from({ length: NUM_SEMANAS }, (_, i) => `Sem ${i + 1}`);
 
         // Gráfico de Palavras
         if (chartPalavras) chartPalavras.destroy();
@@ -1053,7 +1083,7 @@ async function abrirEstatisticas() {
             }
         });
 
-        // Preparar dados de média semanal para o gráfico de habilidades
+        // Médias semanais por habilidade
         let mediaHabSemanal = { oralidade: [], escuta: [], escrita: [], leitura: [] };
         for (let i = 0; i < NUM_SEMANAS; i++) {
             let div = habPorSemana.contagem[i] > 0 ? habPorSemana.contagem[i] : 1;
@@ -1071,9 +1101,9 @@ async function abrirEstatisticas() {
                 labels: labelsSemanas,
                 datasets: [
                     { label: 'Oralidade', data: mediaHabSemanal.oralidade, backgroundColor: '#FF6B6B' },
-                    { label: 'Escuta', data: mediaHabSemanal.escuta, backgroundColor: '#4ECDC4' },
-                    { label: 'Escrita', data: mediaHabSemanal.escrita, backgroundColor: '#45B7D1' },
-                    { label: 'Leitura', data: mediaHabSemanal.leitura, backgroundColor: '#96CEB4' }
+                    { label: 'Escuta',    data: mediaHabSemanal.escuta,    backgroundColor: '#4ECDC4' },
+                    { label: 'Escrita',   data: mediaHabSemanal.escrita,   backgroundColor: '#45B7D1' },
+                    { label: 'Leitura',   data: mediaHabSemanal.leitura,   backgroundColor: '#96CEB4' }
                 ]
             },
             options: { scales: { y: { beginAtZero: true, max: 100 } } }
