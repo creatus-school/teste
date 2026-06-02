@@ -124,6 +124,10 @@ h3.titulo-pratiquei, h2.titulo-verificador {
     text-align: center;
 }
 
+.titulo-dias-dashboard {
+    text-align: center;
+}
+
 /* Estilo dos Inputs (Caixas de texto arredondadas) */
 input[type="text"], input[type="password"], input[type="email"] {
     width: 100%;
