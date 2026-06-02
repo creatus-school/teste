@@ -1,793 +1,675 @@
-// Variáveis globais
-let diaAtual = 1;
-let totalDias = 91; // Total de dias do plano
-let auth;
-let db;
-
-// Inicializa o Firebase
+// Suas configurações do Firebase aqui
 const firebaseConfig = {
-    apiKey: "AIzaSyCDRupoBxBFTovsPdasQPeOBbs3f8Uq1O0",
-    authDomain: "plano-de-ingles-teste.firebaseapp.com",
-    projectId: "plano-de-ingles-teste",
-    storageBucket: "plano-de-ingles-teste.firebasestorage.app",
-    messagingSenderId: "868459740241",
-    appId: "1:868459740241:web:40be7c54dee9ee39abcc70"
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
 };
 
-// Verifica se o Firebase já foi inicializado
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+// Inicializa o Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-auth = firebase.auth();
-db = firebase.firestore();
+// Variáveis globais para controle de estado
+let currentDay = 1;
+let currentWeek = 1;
+let currentMonth = 1;
+let totalDays = 91; // Total de dias do plano
+let totalWeeks = Math.ceil(totalDays / 7); // Total de semanas
+let totalMonths = Math.ceil(totalDays / 30); // Total de meses (aproximado)
 
-// Listener para o estado de autenticação
-auth.onAuthStateChanged(user => {
-    const loadingSpinner = document.getElementById('loading-spinner');
-    loadingSpinner.classList.add('escondido'); // Esconde o spinner
-
-    if (user) {
-        // Usuário logado
-        document.getElementById('tela-login').classList.add('escondido');
-        document.getElementById('logo-topo-site').classList.remove('escondido');
-        document.getElementById('logo-rodape-site').classList.remove('escondido');
-        verificarOnboarding(user);
-        gerarDiasDashboard();
-    } else {
-        // Usuário não logado
-        document.getElementById('tela-login').classList.remove('escondido');
-        document.getElementById('tela-dashboard').classList.add('escondido');
-        document.getElementById('tela-dia').classList.add('escondido');
-        document.getElementById('tela-verificador-semanal').classList.add('escondido');
-        document.getElementById('tela-verificador-progresso').classList.add('escondido');
-        document.getElementById('tela-estatisticas').classList.add('escondido');
-        document.getElementById('logo-topo-site').classList.add('escondido');
-        document.getElementById('logo-rodape-site').classList.add('escondido');
-        // Esconde todas as telas de onboarding também
-        for (let i = 1; i <= 9; i++) {
-            let telaOnboarding = document.getElementById('tela-ob-' + i);
-            if (telaOnboarding) {
-                telaOnboarding.classList.add('escondido');
-            }
+// --- FUNÇÕES DE AUTENTICAÇÃO E INICIALIZAÇÃO ---
+document.addEventListener('DOMContentLoaded', () => {
+    showLoadingSpinner();
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Usuário logado
+            checkOnboardingStatus(user.uid);
+        } else {
+            // Usuário não logado
+            hideLoadingSpinner();
+            showScreen('tela-login');
         }
-    }
+    });
 });
 
-function fazerLogin() {
+async function fazerLogin() {
+    showLoadingSpinner();
     const email = document.getElementById('email').value;
     const senha = document.getElementById('senha').value;
 
-    if (!email || !senha) {
-        alert("Por favor, preencha e-mail e senha.");
-        return;
+    try {
+        await auth.signInWithEmailAndPassword(email, senha);
+        // Login bem-sucedido, o onAuthStateChanged cuidará do resto
+    } catch (error) {
+        console.error("Erro no login:", error);
+        alert("Erro ao fazer login: " + error.message);
+        hideLoadingSpinner();
     }
-
-    auth.signInWithEmailAndPassword(email, senha)
-        .then((userCredential) => {
-            // Login bem-sucedido
-            // O onAuthStateChanged vai lidar com a exibição das telas
-        })
-        .catch((error) => {
-            // Tratamento de erros de login
-            let mensagemErro = "Erro ao fazer login. Verifique suas credenciais.";
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                mensagemErro = "E-mail ou senha incorretos.";
-            } else if (error.code === 'auth/invalid-email') {
-                mensagemErro = "Formato de e-mail inválido.";
-            }
-            alert(mensagemErro);
-            console.error("Erro de login:", error);
-        });
 }
 
-function fazerLogout() {
+function logout() {
     auth.signOut().then(() => {
-        // Logout bem-sucedido
-        // O onAuthStateChanged vai lidar com a exibição da tela de login
-    }).catch((error) => {
+        // Redireciona para a tela de login
+        showScreen('tela-login');
+        // Limpa o estado local
+        localStorage.removeItem('onboardingCompleto');
+        localStorage.removeItem('onboardingStep');
+        localStorage.removeItem('currentDay');
+        localStorage.removeItem('currentWeek');
+        localStorage.removeItem('currentMonth');
+        document.getElementById('logo-topo-site').classList.add('escondido');
+        document.getElementById('logo-rodape-site').classList.add('escondido');
+    }).catch(error => {
         console.error("Erro ao fazer logout:", error);
-        alert("Erro ao fazer logout.");
+        alert("Erro ao fazer logout: " + error.message);
     });
 }
 
-// Funções do Onboarding
-window.onboardingConcluido = false; // Flag para controlar se o onboarding já foi concluído
+// --- FUNÇÕES DE NAVEGAÇÃO DE TELAS ---
+function showScreen(screenId) {
+    document.querySelectorAll('.tela-onboarding, #tela-dashboard, #tela-dia, #tela-verificador-semanal, #tela-verificador-progresso, #tela-estatisticas').forEach(screen => {
+        screen.classList.add('escondido');
+    });
+    document.getElementById(screenId).classList.remove('escondido');
 
-async function verificarOnboarding(user) {
-    const doc = await db.collection('alunos').doc(user.uid).get();
-    if (doc.exists && doc.data().onboardingConcluido) {
-        window.onboardingConcluido = true;
-        document.getElementById('tela-dashboard').classList.remove('escondido');
+    // Mostra/esconde o logo do topo e rodapé dependendo da tela
+    if (screenId === 'tela-login' || screenId.startsWith('tela-ob-')) {
+        document.getElementById('logo-topo-site').classList.add('escondido');
+        document.getElementById('logo-rodape-site').classList.add('escondido');
     } else {
-        // Se não concluiu, mostra a primeira tela do onboarding
-        document.getElementById('tela-ob-1').classList.remove('escondido');
+        document.getElementById('logo-topo-site').classList.remove('escondido');
+        document.getElementById('logo-rodape-site').classList.remove('escondido');
     }
+    hideLoadingSpinner();
 }
 
-function gerarDiasDashboard() {
-    const gridDias = document.getElementById('grid-dias');
-    gridDias.innerHTML = ''; // Limpa o conteúdo existente
-
-    const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-    for (let semana = 1; semana <= 13; semana++) {
-        const semanaContainer = document.createElement('div');
-        semanaContainer.className = 'semana-container';
-        semanaContainer.innerHTML = `<h3 class="titulo-semana">Semana ${semana}</h3><div class="dias-grid"></div>`;
-        const diasGrid = semanaContainer.querySelector('.dias-grid');
-
-        for (let i = 0; i < 7; i++) {
-            const numeroDia = ((semana - 1) * 7) + (i + 1);
-            if (numeroDia <= totalDias) {
-                const diaBtn = document.createElement('button');
-                diaBtn.className = 'dia-btn';
-                diaBtn.id = `btn-dia-${numeroDia}`;
-                diaBtn.innerText = `${diasDaSemana[i]} ${numeroDia}`;
-                diaBtn.onclick = () => abrirDia(numeroDia);
-                diasGrid.appendChild(diaBtn);
-            }
-        }
-        gridDias.appendChild(semanaContainer);
-    }
-    marcarDiasConcluidos(); // Marca os dias já concluídos
+function showLoadingSpinner() {
+    document.getElementById('loading-spinner').classList.remove('escondido');
 }
 
-async function marcarDiasConcluidos() {
-    const user = auth.currentUser;
-    if (user) {
-        const snapshot = await db.collection('alunos').doc(user.uid).collection('dias').get();
-        snapshot.forEach(doc => {
-            const idDoc = doc.id; // Ex: "dia_1", "dia_15"
-            const numeroDia = parseInt(idDoc.replace('dia_', ''));
-            const botaoDia = document.getElementById(`btn-dia-${numeroDia}`);
-            if (botaoDia) {
-                botaoDia.classList.add('concluido');
-            }
-        });
-    }
+function hideLoadingSpinner() {
+    document.getElementById('loading-spinner').classList.add('escondido');
 }
 
-function abrirDia(numero) {
-    window.scrollTo(0, 0);
-    diaAtual = numero;
-    document.getElementById('tela-dashboard').classList.add('escondido');
-    document.getElementById('tela-dia').classList.remove('escondido');
-    document.getElementById('numero-dia-atual').innerText = numero;
-
-    // Limpa os campos antes de carregar
-    document.getElementById('data-dia').value = '';
-    document.getElementById('dia-semana').value = '';
-    document.getElementById('descricao-tarefa').value = '';
-    document.getElementById('empenho-salvo').value = '';
-    document.querySelectorAll('.btn-empenho').forEach(btn => btn.classList.remove('selecionado'));
-    document.querySelectorAll('.btn-porcentagem').forEach(btn => btn.classList.remove('ativo'));
-
-    // Limpa os campos de vocabulário
-    const gridVocabulario = document.querySelector('#container-palavras-dia .grid-vocabulario');
-    gridVocabulario.innerHTML = `
-        <input type="text" id="voc-1" class="input-cinza" placeholder="Palavra / Expressão">
-        <input type="text" id="exe-1" class="input-cinza" placeholder="Exemplo de uso">
-        <input type="text" id="voc-2" class="input-cinza" placeholder="Palavra / Expressão">
-        <input type="text" id="exe-2" class="input-cinza" placeholder="Exemplo de uso">
-        <input type="text" id="voc-3" class="input-cinza" placeholder="Palavra / Expressão">
-        <input type="text" id="exe-3" class="input-cinza" placeholder="Exemplo de uso">
-    `;
-
-    carregarDia(numero);
-}
-
-function salvarDia() {
-    const user = auth.currentUser;
-    if (user) {
-        let dadosParaSalvar = {
-            data: document.getElementById('data-dia').value,
-            diaSemana: document.getElementById('dia-semana').value,
-            descricaoTarefa: document.getElementById('descricao-tarefa').value,
-            empenho: document.getElementById('empenho-salvo').value,
-            oralidade: document.getElementById('progresso-oralidade').value,
-            leitura: document.getElementById('progresso-leitura').value,
-            escuta: document.getElementById('progresso-escuta').value,
-            escrita: document.getElementById('progresso-escrita').value
-        };
-
-        // Salva os vocabulários (agora até 50 campos)
-        for(let i=1; i<=50; i++) {
-            let voc = document.getElementById('voc-'+i);
-            let exe = document.getElementById('exe-'+i);
-            if (voc || exe) { // Verifica se o elemento existe (pode ter sido adicionado dinamicamente)
-                dadosParaSalvar['voc'+i] = voc ? voc.value : '';
-                dadosParaSalvar['exe'+i] = exe ? exe.value : '';
-            }
-        }
-
-        db.collection('alunos').doc(user.uid).collection('dias').doc('dia_' + diaAtual).set(dadosParaSalvar)
-        .then(() => {
-            let botaoPainel = document.getElementById('btn-dia-' + diaAtual);
-            if(botaoPainel) botaoPainel.classList.add('concluido');
-            const msg = document.getElementById('mensagem-sucesso');
-            if(msg) {
-                msg.classList.remove('escondido');
-                setTimeout(() => {
-                    msg.classList.add('escondido');
-                }, 3000);
-            }
-        })
-        .catch((error) => {
-            alert("Erro ao salvar: " + error);
-        });
-    }
-}
-
-function carregarDia(numeroDia) {
-    const user = auth.currentUser;
-    if (user) {
-        db.collection('alunos').doc(user.uid).collection('dias').doc('dia_' + numeroDia).get()
-        .then(doc => {
-            if (doc.exists) {
-                const dados = doc.data();
-
-                // Carrega a data e a descrição da tarefa
-                let dataDia = document.getElementById('data-dia');
-                let descTarefa = document.getElementById('descricao-tarefa');
-                if(dataDia) dataDia.value = dados.data || '';
-                let diaSemana = document.getElementById('dia-semana');
-                if(diaSemana) diaSemana.value = dados.diaSemana || '';
-                if(descTarefa) descTarefa.value = dados.descricaoTarefa || '';
-
-                // 1. Carrega os vocabulários (agora até 50 campos)
-                for(let i=1; i<=50; i++) {
-                    let textoVoc = dados['voc'+i];
-                    let textoExe = dados['exe'+i];
-
-                    // Trava de segurança: Verifica se existe algo salvo E se não é apenas um texto vazio
-                    let temTextoSalvo = (textoVoc && textoVoc.trim() !== '') || (textoExe && textoExe.trim() !== '');
-
-                    if(temTextoSalvo) {
-                        let voc = document.getElementById('voc-'+i);
-                        let exe = document.getElementById('exe-'+i);
-
-                        // Se o campo não existe no HTML, nós criamos ele dinamicamente!
-                        if(!voc) {
-                            const grid = document.querySelector('.grid-vocabulario');
-                            if(grid) {
-                                voc = document.createElement('input');
-                                voc.type = 'text';
-                                voc.id = `voc-${i}`;
-                                voc.className = 'input-cinza';
-
-                                exe = document.createElement('input');
-                                exe.type = 'text';
-                                exe.id = `exe-${i}`;
-                                exe.className = 'input-cinza';
-
-                                grid.appendChild(voc);
-                                grid.appendChild(exe);
-                            }
-                        }
-
-                        // Preenche com o texto salvo
-                        if(voc) voc.value = textoVoc || '';
-                        if(exe) exe.value = textoExe || '';
-                    }
-                }
-
-                // 2. Carrega o empenho visualmente
-                let valorEmpenho = dados.empenho || '';
-                let empenhoSalvo = document.getElementById('empenho-salvo');
-                if(empenhoSalvo) empenhoSalvo.value = valorEmpenho;
-
-                if(valorEmpenho) {
-                    let btnCorreto = document.querySelector(`.btn-empenho[data-valor="${valorEmpenho}"]`);
-                    if(btnCorreto) btnCorreto.classList.add('selecionado');
-                }
-
-                // 3. Carrega as bolinhas roxas apenas se houver algo salvo
-                if (typeof selecionarPorcentagem === "function") {
-                    if (dados.oralidade) selecionarPorcentagem('oralidade', dados.oralidade);
-                    if (dados.leitura) selecionarPorcentagem('leitura', dados.leitura);
-                    if (dados.escuta) selecionarPorcentagem('escuta', dados.escuta);
-                    if (dados.escrita) selecionarPorcentagem('escrita', dados.escrita);
-                }
-            }
-        });
-    }
-}
-
-        // Função para selecionar o emoji no Verificador Diário
-function selecionarEmpenho(botaoClicado) {
-    // Remove a classe 'selecionado' de todos os botões
-    let botoes = document.querySelectorAll('.btn-empenho');
-    botoes.forEach(btn => btn.classList.remove('selecionado'));
-
-    // Adiciona a classe 'selecionado' apenas no botão clicado
-    botaoClicado.classList.add('selecionado');
-
-    // Salva o valor escolhido no campo escondido
-    document.getElementById('empenho-salvo').value = botaoClicado.getAttribute('data-valor');
-}
-
-// Função para selecionar a porcentagem nas faixas roxas
-function selecionarPorcentagem(habilidade, valor) {
-    // Salva o valor no campo escondido
-    document.getElementById('progresso-' + habilidade).value = valor;
-
-    // Encontra a linha certa (Oralidade, Leitura, etc)
-    let container = document.querySelector(`.porcentagens[data-habilidade="${habilidade}"]`);
-
-    // Apaga todas as bolinhas dessa linha
-    let botoes = container.querySelectorAll('.btn-porcentagem');
-    botoes.forEach(btn => btn.classList.remove('ativo'));
-
-    // Acende apenas a bolinha que foi clicada
-    let botaoClicado = Array.from(botoes).find(btn => btn.innerText === valor + '%');
-    if(botaoClicado) {
-        botaoClicado.classList.add('ativo');
-    }
-}
-
-// Funções do Onboarding (Telas Iniciais)
-function avancarOnboarding(telaAtual, proximaTela) {
-    window.scrollTo(0, 0);
-    document.getElementById('tela-ob-' + telaAtual).classList.add('escondido');
-
-    // Verifica se o usuário já concluiu o onboarding (ou seja, está revisando as telas)
-    // Se a próxima tela é o dashboard, finaliza o onboarding.
-    if (proximaTela === 'dashboard') {
-        finalizarOnboarding(); // Chama a função que já existe para finalizar e ir para o dashboard
+// --- FUNÇÕES DE ONBOARDING ---
+async function checkOnboardingStatus(uid) {
+    const userDoc = await db.collection('alunos').doc(uid).get();
+    if (userDoc.exists && userDoc.data().onboardingCompleto) {
+        localStorage.setItem('onboardingCompleto', 'true');
+        loadDashboard();
     } else {
-        if (window.onboardingConcluido) {
-            // Se o onboarding já foi concluído, usamos abrirTelaAvulsa para a próxima tela
-            // para garantir que o botão "voltar ao menu" apareça.
-            abrirTelaAvulsa('tela-ob-' + proximaTela);
-        } else {
-            // Se o onboarding ainda não foi concluído, apenas avança normalmente.
-            document.getElementById('tela-ob-' + proximaTela).classList.remove('escondido');
-        }
+        localStorage.removeItem('onboardingCompleto');
+        // Se não completou, verifica em qual passo parou ou começa do 1
+        let onboardingStep = parseInt(localStorage.getItem('onboardingStep') || '1');
+        showScreen('tela-ob-' + onboardingStep);
     }
 }
 
-function abrirTela(idTela) {
-    window.scrollTo(0, 0);
-    document.getElementById('tela-dashboard').classList.add('escondido');
-    document.getElementById(idTela).classList.remove('escondido');
-}
-
-function voltarAoMenu(idTelaAtual) {
-    window.scrollTo(0, 0);
-    document.getElementById(idTelaAtual).classList.add('escondido');
-    document.getElementById('tela-dashboard').classList.remove('escondido');
-}
-
-function finalizarOnboarding() {
-    const user = auth.currentUser;
-    if (user) {
-        db.collection('alunos').doc(user.uid).set({ onboardingConcluido: true }, { merge: true })
-        .then(() => {
-            window.onboardingConcluido = true; // Define a flag global
-            document.getElementById('tela-ob-9').classList.add('escondido');
-            document.getElementById('tela-dashboard').classList.remove('escondido');
-            // remover: adicionarBotoesVoltarOnboarding(); // Esta linha já foi removida
+async function avancarOnboarding(currentStep, nextStep) {
+    // Validações para cada passo
+    if (currentStep === 2) { // Contrato
+        const nome = document.getElementById('ob-nome-contrato').value.trim();
+        const assinatura = document.getElementById('ob-assinatura').value.trim();
+        if (!nome || !assinatura) {
+            alert("Por favor, preencha seu nome e assine o contrato para continuar.");
+            return;
+        }
+        // Salva nome e assinatura no Firebase
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                nome: nome,
+                assinatura: assinatura
+            }, { merge: true });
+        }
+    } else if (currentStep === 5) { // Rotina Semanal
+        const rotinaItems = document.querySelectorAll('#lista-rotina .rotina-item');
+        const rotinaData = [];
+        rotinaItems.forEach(item => {
+            const atividade = item.querySelector('.input-linha').value.trim();
+            const tempo = item.querySelector('input[type="number"]').value.trim();
+            if (atividade && tempo) {
+                rotinaData.push({ atividade, tempo: parseInt(tempo) });
+            }
         });
+        if (rotinaData.length === 0) {
+            alert("Por favor, adicione pelo menos uma atividade à sua rotina.");
+            return;
+        }
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                rotinaSemanal: rotinaData
+            }, { merge: true });
+        }
+    } else if (currentStep === 6) { // Prioridades
+        const prioridadesSelecionadas = [];
+        document.querySelectorAll('.lista-atividades input[type="checkbox"]:checked').forEach(checkbox => {
+            prioridadesSelecionadas.push(checkbox.id.replace('prioridade-', ''));
+        });
+        if (prioridadesSelecionadas.length === 0) {
+            alert("Por favor, selecione pelo menos uma prioridade.");
+            return;
+        }
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                prioridades: prioridadesSelecionadas
+            }, { merge: true });
+        }
+    } else if (currentStep === 7) { // Pontos Fortes e Fracos
+        const pontosFortes = document.getElementById('ob-pontos-fortes').value.trim();
+        const pontosFracos = document.getElementById('ob-pontos-fracos').value.trim();
+        if (!pontosFortes || !pontosFracos) {
+            alert("Por favor, preencha seus pontos fortes e fracos.");
+            return;
+        }
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                pontosFortes: pontosFortes,
+                pontosFracos: pontosFracos
+            }, { merge: true });
+        }
+    } else if (currentStep === 8) { // Objetivos e Metas
+        const nivelMeta = document.getElementById('ob-nivel-meta').value;
+        const tempoMeta = document.getElementById('ob-tempo-meta').value.trim();
+        const tipoTempo = document.getElementById('ob-tipo-tempo').value;
+        const objetivo = document.getElementById('ob-objetivo').value.trim();
+        const tempoDiario = document.getElementById('ob-tempo-diario').value.trim();
+        const metaDias = document.getElementById('meta-dias').value.trim();
+
+        if (!nivelMeta || !tempoMeta || !tipoTempo || !objetivo || !tempoDiario || !metaDias) {
+            alert("Por favor, preencha todos os campos de objetivos e metas.");
+            return;
+        }
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                objetivosMetas: {
+                    nivelMeta,
+                    tempoMeta: parseInt(tempoMeta),
+                    tipoTempo,
+                    objetivo,
+                    tempoDiario: parseInt(tempoDiario),
+                    metaDias: parseInt(metaDias)
+                }
+            }, { merge: true });
+        }
+    }
+
+    localStorage.setItem('onboardingStep', nextStep);
+    showScreen('tela-ob-' + nextStep);
+
+    // Se for o último passo do onboarding (ir para o dashboard)
+    if (nextStep === 10) {
+        const user = auth.currentUser;
+        if (user) {
+            await db.collection('alunos').doc(user.uid).set({
+                onboardingCompleto: true
+            }, { merge: true });
+            localStorage.setItem('onboardingCompleto', 'true');
+            loadDashboard();
+        }
     }
 }
 
-function abrirTelaAvulsa(idTela) {
-    window.scrollTo(0, 0); // Rola para o topo da página
-
-    // Esconde todas as telas que podem estar visíveis antes de abrir a nova
-    document.getElementById('tela-dashboard').classList.add('escondido');
-    document.getElementById('tela-dia').classList.add('escondido');
-    document.getElementById('tela-verificador-semanal').classList.add('escondido');
-    document.getElementById('tela-verificador-progresso').classList.add('escondido');
-    document.getElementById('tela-estatisticas').classList.add('escondido'); // Adicionado
-    // Adicione aqui qualquer outra tela que possa estar visível e precise ser escondida
-    // Esconde todas as telas de onboarding também
-    for (let i = 1; i <= 9; i++) {
-        let telaOnboarding = document.getElementById('tela-ob-' + i);
-        if (telaOnboarding) {
-            telaOnboarding.classList.add('escondido');
-        }
-    }
-
-    let telaDestino = document.getElementById(idTela);
-    if (telaDestino) { // Verifica se a tela de destino existe
-        telaDestino.classList.remove('escondido');
-
-        // Cria um botão "Voltar" automaticamente no topo da tela acessada
-        // Verifica se o botão já existe para não duplicar
-        if (!document.getElementById('btn-voltar-' + idTela)) {
-            let btnVoltar = document.createElement('button');
-            btnVoltar.id = 'btn-voltar-' + idTela;
-            btnVoltar.innerText = 'voltar ao menu';
-            btnVoltar.style.backgroundColor = '#999';
-            btnVoltar.style.marginBottom = '20px';
-            btnVoltar.style.width = 'auto'; // Mude de '100%' para 'auto'
-            btnVoltar.style.padding = '15px 20px'; // Diminua o padding (ex: 10px de altura, 20px de largura)
-            btnVoltar.onclick = function() {
-                telaDestino.classList.add('escondido');
-                document.getElementById('tela-dashboard').classList.remove('escondido');
-            };
-            // Insere o botão como primeiro filho da tela de destino
-            telaDestino.insertBefore(btnVoltar, telaDestino.firstChild);
-        }
-    }
+function abrirOnboarding(step) {
+    showScreen('tela-ob-' + step);
 }
 
 function adicionarLinhaRotina() {
-    const container = document.getElementById('lista-rotina');
+    const listaRotina = document.getElementById('lista-rotina');
     const div = document.createElement('div');
-    div.className = 'atividade-item';
+    div.classList.add('rotina-item');
+    div.style.display = 'flex';
+    div.style.gap = '10px';
     div.style.marginBottom = '10px';
     div.innerHTML = `
-        <input type="text" class="input-linha" placeholder="Atividade" style="width: 60%;">
-        <input type="text" class="input-linha" placeholder="Tempo (ex: 1h)" style="width: 30%;">
+        <input type="text" class="input-linha" placeholder="Atividade" style="flex: 2;">
+        <input type="number" class="input-linha" placeholder="Tempo (min)" style="flex: 1;">
+        <button onclick="this.parentNode.remove()" style="background-color: #dc3545; padding: 5px 10px; border-radius: 5px; margin-top: 0; font-size: 0.8rem;">X</button>
     `;
-    container.appendChild(div);
+    listaRotina.appendChild(div);
 }
 
-// Adiciona 3 linhas vazias de rotina logo que a página carrega
-window.onload = function() {
-    for(let i=0; i<3; i++) adicionarLinhaRotina();
-};
+// --- FUNÇÕES DO DASHBOARD ---
+async function loadDashboard() {
+    showLoadingSpinner();
+    showScreen('tela-dashboard');
+    const user = auth.currentUser;
+    if (!user) return;
 
-// Funções para abrir e fechar as subpáginas de tarefas
+    const gridDias = document.getElementById('grid-dias');
+    gridDias.innerHTML = ''; // Limpa o grid antes de carregar
+
+    const userDoc = await db.collection('alunos').doc(user.uid).get();
+    const userData = userDoc.data();
+    const diasConcluidos = userData && userData.diasConcluidos ? userData.diasConcluidos : {};
+
+    for (let i = 0; i < totalWeeks; i++) {
+        const semanaNum = i + 1;
+        const semanaContainer = document.createElement('div');
+        semanaContainer.classList.add('semana-container');
+        semanaContainer.innerHTML = `<h3 class="titulo-semana">Semana ${semanaNum}</h3><div class="dias-grid"></div>`;
+        const diasGrid = semanaContainer.querySelector('.dias-grid');
+
+        for (let j = 1; j <= 7; j++) {
+            const diaNum = (i * 7) + j;
+            if (diaNum > totalDays) break; // Não cria dias além do total
+
+            const diaBtn = document.createElement('button');
+            diaBtn.classList.add('dia-btn');
+            diaBtn.innerText = diaNum;
+            diaBtn.onclick = () => abrirDia(diaNum);
+
+            if (diasConcluidos['dia_' + diaNum]) {
+                diaBtn.classList.add('concluido');
+            }
+            diasGrid.appendChild(diaBtn);
+        }
+        gridDias.appendChild(semanaContainer);
+    }
+    hideLoadingSpinner();
+}
+
+async function zerarProgresso() {
+    if (!confirm("Tem certeza que deseja zerar todo o seu progresso? Esta ação é irreversível.")) {
+        return;
+    }
+
+    showLoadingSpinner();
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Usuário não logado.");
+        hideLoadingSpinner();
+        return;
+    }
+
+    try {
+        // Excluir todos os documentos da subcoleção 'dias'
+        const diasRef = db.collection('alunos').doc(user.uid).collection('dias');
+        const snapshot = await diasRef.get();
+        const batch = db.batch();
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+
+        // Resetar o campo 'diasConcluidos' no documento do aluno
+        await db.collection('alunos').doc(user.uid).update({
+            diasConcluidos: {},
+            onboardingCompleto: false // Força o onboarding novamente
+        });
+
+        // Limpar o localStorage
+        localStorage.clear();
+
+        alert("Seu progresso foi zerado com sucesso. Você será redirecionado para o início.");
+        // Redirecionar para a tela de login ou onboarding
+        auth.signOut(); // Força o logout para reiniciar o fluxo
+    } catch (error) {
+        console.error("Erro ao zerar progresso:", error);
+        alert("Ocorreu um erro ao zerar o progresso: " + error.message);
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+// --- FUNÇÕES DA TELA DO DIA ---
+async function abrirDia(diaNum) {
+    showLoadingSpinner();
+    currentDay = diaNum;
+    document.getElementById('dia-semana').value = diaNum;
+    showScreen('tela-dia');
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Carregar dados do dia se existirem
+    const diaDoc = await db.collection('alunos').doc(user.uid).collection('dias').doc('dia_' + diaNum).get();
+    if (diaDoc.exists) {
+        const dados = diaDoc.data();
+        document.getElementById('data-dia').value = dados.data || '';
+        document.getElementById('tarefa-dia').value = dados.tarefa || '';
+
+        // Carregar vocabulário
+        const gridVocabulario = document.getElementById('grid-vocabulario');
+        gridVocabulario.innerHTML = ''; // Limpa antes de preencher
+        let temVocabulario = false;
+        for (let i = 1; i <= 50; i++) { // Supondo um máximo de 50 pares de vocabulário
+            if (dados['voc' + i] || dados['exe' + i]) {
+                adicionarCampoVocabulario(dados['voc' + i], dados['exe' + i]);
+                temVocabulario = true;
+            }
+        }
+        if (!temVocabulario) { // Se não houver vocabulário, adiciona um campo vazio
+            adicionarCampoVocabulario();
+        }
+
+        // Carregar empenho
+        document.querySelectorAll('.btn-empenho').forEach(btn => {
+            btn.classList.remove('selecionado');
+            if (btn.dataset.empenho === dados.empenho) {
+                btn.classList.add('selecionado');
+            }
+        });
+
+        // Carregar habilidades
+        ['oralidade', 'leitura', 'escuta', 'escrita'].forEach(habilidade => {
+            document.querySelectorAll(`.btn-porcentagem[data-habilidade="${habilidade}"]`).forEach(btn => {
+                btn.classList.remove('ativo');
+                if (parseInt(btn.dataset.porcentagem) === dados[habilidade]) {
+                    btn.classList.add('ativo');
+                }
+            });
+        });
+    } else {
+        // Limpar campos se não houver dados para o dia
+        document.getElementById('data-dia').value = '';
+        document.getElementById('tarefa-dia').value = '';
+        document.getElementById('grid-vocabulario').innerHTML = '';
+        adicionarCampoVocabulario(); // Adiciona um campo vazio para começar
+        document.querySelectorAll('.btn-empenho').forEach(btn => btn.classList.remove('selecionado'));
+        document.querySelectorAll('.btn-porcentagem').forEach(btn => btn.classList.remove('ativo'));
+    }
+    hideLoadingSpinner();
+}
+
+function adicionarCampoVocabulario(palavra = '', exemplo = '') {
+    const gridVocabulario = document.getElementById('grid-vocabulario');
+    const inputPalavra = document.createElement('input');
+    inputPalavra.type = 'text';
+    inputPalavra.classList.add('input-cinza');
+    inputPalavra.placeholder = 'Palavra/Expressão';
+    inputPalavra.value = palavra;
+
+    const inputExemplo = document.createElement('input');
+    inputExemplo.type = 'text';
+    inputExemplo.classList.add('input-cinza');
+    inputExemplo.placeholder = 'Exemplo';
+    inputExemplo.value = exemplo;
+
+    gridVocabulario.appendChild(inputPalavra);
+    gridVocabulario.appendChild(inputExemplo);
+}
+
+async function salvarProgressoDia() {
+    showLoadingSpinner();
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Usuário não logado.");
+        hideLoadingSpinner();
+        return;
+    }
+
+    const data = document.getElementById('data-dia').value;
+    const tarefa = document.getElementById('tarefa-dia').value;
+
+    const vocabularioData = {};
+    const palavras = document.querySelectorAll('#grid-vocabulario input[placeholder="Palavra/Expressão"]');
+    const exemplos = document.querySelectorAll('#grid-vocabulario input[placeholder="Exemplo"]');
+
+    for (let i = 0; i < palavras.length; i++) {
+        if (palavras[i].value.trim() !== '') {
+            vocabularioData['voc' + (i + 1)] = palavras[i].value.trim();
+            vocabularioData['exe' + (i + 1)] = exemplos[i].value.trim();
+        }
+    }
+
+    const empenhoSelecionado = document.querySelector('.btn-empenho.selecionado');
+    const empenho = empenhoSelecionado ? empenhoSelecionado.dataset.empenho : '';
+
+    const habilidades = {};
+    ['oralidade', 'leitura', 'escuta', 'escrita'].forEach(habilidade => {
+        const btnAtivo = document.querySelector(`.btn-porcentagem[data-habilidade="${habilidade}"].ativo`);
+        habilidades[habilidade] = btnAtivo ? parseInt(btnAtivo.dataset.porcentagem) : 0;
+    });
+
+    try {
+        await db.collection('alunos').doc(user.uid).collection('dias').doc('dia_' + currentDay).set({
+            data,
+            tarefa,
+            ...vocabularioData,
+            empenho,
+            ...habilidades
+        }, { merge: true });
+
+        // Marcar o dia como concluído no documento principal do aluno
+        await db.collection('alunos').doc(user.uid).set({
+            diasConcluidos: {
+                ['dia_' + currentDay]: true
+            }
+        }, { merge: true });
+
+        document.getElementById('mensagem-sucesso').classList.remove('escondido');
+        setTimeout(() => {
+            document.getElementById('mensagem-sucesso').classList.add('escondido');
+        }, 3000); // Esconde a mensagem após 3 segundos
+
+    } catch (error) {
+        console.error("Erro ao salvar progresso do dia:", error);
+        alert("Erro ao salvar progresso: " + error.message);
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+function voltarDashboard() {
+    loadDashboard(); // Recarrega o dashboard para atualizar os dias concluídos
+}
+
+// Event listeners para os botões de empenho
+document.querySelectorAll('.btn-empenho').forEach(button => {
+    button.addEventListener('click', function() {
+        document.querySelectorAll('.btn-empenho').forEach(btn => btn.classList.remove('selecionado'));
+        this.classList.add('selecionado');
+    });
+});
+
+// Event listeners para os botões de porcentagem de habilidades
+document.querySelectorAll('.btn-porcentagem').forEach(button => {
+    button.addEventListener('click', function() {
+        const habilidade = this.dataset.habilidade;
+        document.querySelectorAll(`.btn-porcentagem[data-habilidade="${habilidade}"]`).forEach(btn => btn.classList.remove('ativo'));
+        this.classList.add('ativo');
+    });
+});
+
+// --- FUNÇÕES DO VERIFICADOR SEMANAL ---
+async function abrirVerificadorSemanal() {
+    showLoadingSpinner();
+    showScreen('tela-verificador-semanal');
+
+    currentWeek = Math.ceil(currentDay / 7);
+    document.getElementById('semana-atual-verificador').innerText = currentWeek;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Carregar empenho diário da semana
+    const rastreadorEmpenho = document.getElementById('rastreador-empenho-semanal');
+    rastreadorEmpenho.innerHTML = ''; // Limpa antes de preencher
+
+    const diasDaSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const emojisEmpenho = {
+        'Demais': '🤩', 'Muito': '😁', 'Ok': '🙂', 'Pouco': '😕', 'Nada': '😞'
+    };
+    const frasesEmpenho = {
+        'Demais': 'Você venceu', 'Muito': 'Ótimo trabalho', 'Ok': 'Bom trabalho',
+        'Pouco': 'Quase lá', 'Nada': 'Não desista'
+    };
+
+    for (let i = 0; i < 7; i++) {
+        const diaReal = ((currentWeek - 1) * 7) + i + 1;
+        if (diaReal > totalDays) break;
+
+        const diaDoc = await db.collection('alunos').doc(user.uid).collection('dias').doc('dia_' + diaReal).get();
+        const empenhoDia = diaDoc.exists ? diaDoc.data().empenho : 'Nada'; // Padrão para 'Nada' se não houver registro
+
+        const diaRastreador = document.createElement('div');
+        diaRastreador.classList.add('dia-rastreador');
+        diaRastreador.innerHTML = `
+            <span class="nome-dia">${diasDaSemana[i]}</span>
+            <span class="emoji-dia">${emojisEmpenho[empenhoDia]}</span>
+            <span class="frase-dia">${frasesEmpenho[empenhoDia]}</span>
+            <div class="checkbox-dia ${diaDoc.exists && diaDoc.data().empenho ? 'marcado' : ''}"></div>
+        `;
+        rastreadorEmpenho.appendChild(diaRastreador);
+    }
+
+    // Carregar respostas do verificador semanal
+    const verificadorDoc = await db.collection('alunos').doc(user.uid).collection('verificadores').doc('semana_' + currentWeek).get();
+    if (verificadorDoc.exists) {
+        const dados = verificadorDoc.data();
+        for (let i = 1; i <= 5; i++) {
+            const resposta = dados['q' + i];
+            if (resposta) {
+                document.querySelectorAll(`.vs-btn-sn[data-pergunta="q${i}"][data-resposta="${resposta}"]`).forEach(btn => {
+                    btn.classList.add('selecionado');
+                });
+                if (i === 4 && resposta === 'sim') { // Se "Me senti desanimado(a)?" for SIM
+                    document.getElementById('vs-motivacional-q4').style.display = 'block';
+                } else {
+                    document.getElementById('vs-motivacional-q4').style.display = 'none';
+                }
+            }
+        }
+        document.getElementById('vs-q6').value = dados.q6 || '';
+        document.getElementById('vs-q7').value = dados.q7 || '';
+        document.getElementById('vs-q8').value = dados.q8 || '';
+    } else {
+        // Limpar campos se não houver dados
+        document.querySelectorAll('.vs-btn-sn').forEach(btn => btn.classList.remove('selecionado'));
+        document.getElementById('vs-motivacional-q4').style.display = 'none';
+        document.getElementById('vs-q6').value = '';
+        document.getElementById('vs-q7').value = '';
+        document.getElementById('vs-q8').value = '';
+    }
+    hideLoadingSpinner();
+}
+
+// Event listeners para os botões SIM/NÃO do verificador semanal
+document.querySelectorAll('.vs-btn-sn').forEach(button => {
+    button.addEventListener('click', function() {
+        const pergunta = this.dataset.pergunta;
+        document.querySelectorAll(`.vs-btn-sn[data-pergunta="${pergunta}"]`).forEach(btn => btn.classList.remove('selecionado'));
+        this.classList.add('selecionado');
+
+        // Lógica para mostrar/esconder o texto motivacional da pergunta 4
+        if (pergunta === 'q4') {
+            if (this.dataset.resposta === 'sim') {
+                document.getElementById('vs-motivacional-q4').style.display = 'block';
+            } else {
+                document.getElementById('vs-motivacional-q4').style.display = 'none';
+            }
+        }
+    });
+});
+
+async function salvarVerificadorSemanal() {
+    showLoadingSpinner();
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Usuário não logado.");
+        hideLoadingSpinner();
+        return;
+    }
+
+    const respostas = {};
+    for (let i = 1; i <= 5; i++) {
+        const btnSelecionado = document.querySelector(`.vs-btn-sn[data-pergunta="q${i}"].selecionado`);
+        respostas['q' + i] = btnSelecionado ? btnSelecionado.dataset.resposta : '';
+    }
+    respostas.q6 = document.getElementById('vs-q6').value;
+    respostas.q7 = document.getElementById('vs-q7').value;
+    respostas.q8 = document.getElementById('vs-q8').value;
+
+    try {
+        await db.collection('alunos').doc(user.uid).collection('verificadores').doc('semana_' + currentWeek).set(respostas, { merge: true });
+        document.getElementById('msg-sucesso-vs').classList.remove('escondido');
+        setTimeout(() => {
+            document.getElementById('msg-sucesso-vs').classList.add('escondido');
+        }, 3000);
+    } catch (error) {
+        console.error("Erro ao salvar verificador semanal:", error);
+        alert("Erro ao salvar verificador semanal: " + error.message);
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+// --- FUNÇÕES DO VERIFICADOR DE PROGRESSO (MENSAL) ---
+async function abrirVerificadorProgresso() {
+    showLoadingSpinner();
+    showScreen('tela-verificador-progresso');
+
+    currentMonth = Math.ceil(currentDay / 30); // Calcula o mês baseado no dia atual
+    document.getElementById('mes-atual-verificador').innerText = currentMonth;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const verificadorDoc = await db.collection('alunos').doc(user.uid).collection('verificadores').doc('mes_' + currentMonth).get();
+    if (verificadorDoc.exists) {
+        const dados = verificadorDoc.data();
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById('vp-q' + i).value = dados['q' + i] || '';
+        }
+    } else {
+        for (let i = 1; i <= 9; i++) {
+            document.getElementById('vp-q' + i).value = '';
+        }
+    }
+    hideLoadingSpinner();
+}
+
+async function salvarVerificadorProgresso() {
+    showLoadingSpinner();
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Usuário não logado.");
+        hideLoadingSpinner();
+        return;
+    }
+
+    const respostas = {};
+    for (let i = 1; i <= 9; i++) {
+        respostas['q' + i] = document.getElementById('vp-q' + i).value;
+    }
+
+    try {
+        await db.collection('alunos').doc(user.uid).collection('verificadores').doc('mes_' + currentMonth).set(respostas, { merge: true });
+        document.getElementById('msg-sucesso-vp').classList.remove('escondido');
+        setTimeout(() => {
+            document.getElementById('msg-sucesso-vp').classList.add('escondido');
+        }, 3000);
+    } catch (error) {
+        console.error("Erro ao salvar verificador de progresso:", error);
+        alert("Erro ao salvar verificador de progresso: " + error.message);
+    } finally {
+        hideLoadingSpinner();
+    }
+}
+
+// --- FUNÇÕES DAS SUBPÁGINAS DE TAREFAS (ONBOARDING) ---
 function abrirSubpagina(categoria) {
-    window.scrollTo(0, 0);
-    // Esconde o menu principal de tarefas
     document.getElementById('tela-ob-tarefas').classList.add('escondido');
-    // Mostra a subpágina escolhida
     document.getElementById('subpagina-' + categoria).classList.remove('escondido');
 }
 
 function voltarMenuTarefas() {
-    window.scrollTo(0, 0);
-    // Lista com os IDs de todas as subpáginas
-    const categorias = ['oralidade', 'escuta', 'escrita', 'leitura', 'vocabulario', 'estruturas'];
-
-    // Esconde todas elas
-    categorias.forEach(cat => {
-        let tela = document.getElementById('subpagina-' + cat);
-        if(tela) tela.classList.add('escondido');
+    document.querySelectorAll('[id^="subpagina-"]').forEach(subpagina => {
+        subpagina.classList.add('escondido');
     });
-
-    // Mostra o menu principal novamente
     document.getElementById('tela-ob-tarefas').classList.remove('escondido');
 }
 
-// Lógica do Verificador Semanal
-let semanaAtualVS = 1;
-
-function selecionarSimNao(botaoClicado, idInput, valor) {
-    // 1. Salva a sua resposta (SIM ou NÃO) no campo escondido
-    document.getElementById(idInput).value = valor;
-
-    // 2. Pega a "caixa" (div) exata que envolve os botões SIM e NÃO que você clicou
-    let caixaDosBotoes = botaoClicado.parentElement;
-
-    // 3. Encontra TODOS os botões dentro dessa caixa e remove a marcação deles
-    let botoes = caixaDosBotoes.querySelectorAll('button');
-    botoes.forEach(btn => {
-        btn.classList.remove('selecionado');
-    });
-
-    // 4. Pinta de roxo APENAS o botão que você acabou de clicar
-    botaoClicado.classList.add('selecionado');
-}
-
-function selecionarEmpenhoVS(botaoClicado) {
-    let container = botaoClicado.parentElement;
-    let botoes = container.querySelectorAll('.btn-empenho');
-    botoes.forEach(btn => btn.classList.remove('selecionado'));
-
-    botaoClicado.classList.add('selecionado');
-    document.getElementById('vs-avaliacao-geral').value = botaoClicado.getAttribute('data-valor');
-}
-
-function abrirVerificadorSemanal() {
-    window.scrollTo(0, 0);
-    semanaAtualVS = Math.ceil(diaAtual / 7);
-    document.getElementById('tela-dashboard').classList.add('escondido');
-    document.getElementById('tela-verificador-semanal').classList.remove('escondido');
-    document.getElementById('titulo-semana-atual').innerText = 'Semana ' + semanaAtualVS;
-
-    carregarVerificadorSemanal(semanaAtualVS);
-}
-
-function voltarDashboardVS() {
-    window.scrollTo(0, 0);
-    document.getElementById('tela-verificador-semanal').classList.add('escondido');
-    document.getElementById('tela-dashboard').classList.remove('escondido');
-}
-
-function salvarVerificadorSemanal() {
-    const user = auth.currentUser;
-    if (user) {
-        let dadosVS = {
-            diasEmpenho: document.getElementById('vs-dias-marcados').value,
-            q1: document.getElementById('vs-q1').value,
-            q2: document.getElementById('vs-q2').value,
-            q3: document.getElementById('vs-q3').value,
-            q4: document.getElementById('vs-q4').value,
-            q5: document.getElementById('vs-q5').value,
-            positivos: document.getElementById('vs-positivos').value,
-            negativos: document.getElementById('vs-negativos').value,
-            melhorar: document.getElementById('vs-melhorar').value
-        };
-
-        db.collection('alunos').doc(user.uid).collection('verificadores').doc('semana_' + semanaAtualVS).set(dadosVS)
-        .then(() => {
-            const msg = document.getElementById('msg-sucesso-vs');
-            msg.classList.remove('escondido');
-            setTimeout(() => msg.classList.add('escondido'), 3000);
-        })
-        .catch(error => alert("Erro ao salvar: " + error));
-    }
-}
-
-function carregarVerificadorSemanal(semana) {
-    const user = auth.currentUser;
-    if (user) {
-        // 1. PRIMEIRO: Limpa toda a tela antes de carregar os dados novos
-        document.getElementById('vs-positivos').value = '';
-        document.getElementById('vs-negativos').value = '';
-        document.getElementById('vs-melhorar').value = '';
-        document.getElementById('vs-dias-marcados').value = '[]';
-
-        // Limpa os dias marcados (CORRIGIDO: removido o código que causava crash)
-        document.querySelectorAll('.dia-rastreador').forEach(el => {
-            el.classList.remove('marcado');
-        });
-
-        // Limpa os botões SIM/NÃO (CORRIGIDO: a classe certa é .vs-btn-sn)
-        ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => {
-            document.getElementById('vs-' + q).value = '';
-            let inputHidden = document.getElementById('vs-' + q);
-            let container = inputHidden.parentElement;
-            let botoes = container.querySelectorAll('.vs-btn-sn'); // Correção aqui
-            botoes.forEach(btn => btn.classList.remove('selecionado'));
-        });
-
-        // 2. SEGUNDO: Busca os dados da semana específica no banco
-        db.collection('alunos').doc(user.uid).collection('verificadores').doc('semana_' + semana).get()
-        .then(doc => {
-            if (doc.exists) {
-                const dados = doc.data();
-
-                // Preenche textareas
-                document.getElementById('vs-positivos').value = dados.positivos || '';
-                document.getElementById('vs-negativos').value = dados.negativos || '';
-                document.getElementById('vs-melhorar').value = dados.melhorar || '';
-
-                // Restaura os dias marcados na caixa roxa
-                if (dados.diasEmpenho) {
-                    try {
-                        // Devolve os dados para o input escondido para não perder ao clicar em outro dia
-                        document.getElementById('vs-dias-marcados').value = dados.diasEmpenho;
-
-                        let diasSalvos = JSON.parse(dados.diasEmpenho);
-                        diasSalvos.forEach(dia => {
-                            let elementosDia = document.querySelectorAll('.dia-rastreador');
-                            elementosDia.forEach(el => {
-                                let nomeDiaTela = el.querySelector('.nome-dia').innerText.trim();
-                                if (nomeDiaTela === dia.trim()) {
-                                    el.classList.add('marcado'); // O CSS já coloca o '✔' automaticamente
-                                }
-                            });
-                        });
-                    } catch (e) {
-                        console.error("Erro ao carregar dias de empenho", e);
-                    }
-                }
-
-                // Restaura botões SIM/NÃO (CORRIGIDO: a classe certa é .vs-btn-sn)
-                ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(q => {
-                    if(dados[q]) {
-                        document.getElementById('vs-' + q).value = dados[q];
-                        let inputHidden = document.getElementById('vs-' + q);
-                        let container = inputHidden.parentElement;
-                        let botoes = container.querySelectorAll('.vs-btn-sn'); // Correção aqui
-                        botoes.forEach(btn => {
-                            if(btn.innerText.trim() === dados[q].trim()) {
-                                btn.classList.add('selecionado');
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
-}
-
-// Frases de incentivo para cada dia
-const frasesIncentivo = {
-    'Dom': 'Bom trabalho!',
-    'Seg': 'Continue assim!',
-    'Ter': 'Ótimo trabalho!',
-    'Qua': 'Você arrasa!',
-    'Qui': 'Excelente!',
-    'Sex': 'Quase lá!',
-    'Sáb': 'Missão cumprida!'
-};
-
-// Array para guardar os dias selecionados
-let diasMarcadosVS = [];
-
-function marcarDiaRastreador(elemento, dia) {
-    // Alterna a classe visual
-    elemento.classList.toggle('marcado');
-
-    // Adiciona ou remove o checkmark (✓)
-    let circulo = elemento.querySelector('.circulo-dia');
-    if (elemento.classList.contains('marcado')) {
-        circulo.innerHTML = '✓';
-        // Mostra a frase de incentivo
-        document.getElementById('frase-incentivo-texto').innerText = frasesIncentivo[dia];
-
-        // Adiciona ao array se não existir
-        if (!diasMarcadosVS.includes(dia)) {
-            diasMarcadosVS.push(dia);
-        }
-    } else {
-        circulo.innerHTML = '';
-        // Limpa a frase se desmarcar
-        document.getElementById('frase-incentivo-texto').innerText = '';
-
-        // Remove do array
-        diasMarcadosVS = diasMarcadosVS.filter(d => d !== dia);
-    }
-
-    // Atualiza o input hidden para salvar no Firebase
-    document.getElementById('vs-dias-marcados').value = JSON.stringify(diasMarcadosVS);
-}
-
-function toggleDia(elemento, dia) {
-    // Alterna a classe visual (pinta de verde e coloca o check)
-    elemento.classList.toggle('marcado');
-
-    // Pega a lista de dias salvos no input escondido
-    let inputDias = document.getElementById('vs-dias-marcados');
-    let diasMarcados = JSON.parse(inputDias.value || '[]');
-
-    if (elemento.classList.contains('marcado')) {
-        // Se marcou, adiciona na lista
-        if (!diasMarcados.includes(dia)) diasMarcados.push(dia);
-    } else {
-        // Se desmarcou, remove da lista
-        diasMarcados = diasMarcados.filter(d => d !== dia);
-    }
-
-    // Salva a lista atualizada no input
-    inputDias.value = JSON.stringify(diasMarcados);
-}
-
-let mesAtualVP = 1;
-
-function abrirVerificadorProgresso(mes) {
-    window.scrollTo(0, 0);
-    mesAtualVP = mes;
-    document.getElementById('tela-dashboard').classList.add('escondido');
-    document.getElementById('tela-verificador-progresso').classList.remove('escondido');
-    document.getElementById('titulo-mes-atual').innerText = 'Mês ' + mes;
-
-    carregarVerificadorProgresso(mes);
-}
-
-function voltarDashboardVP() {
-    window.scrollTo(0, 0);
-    document.getElementById('tela-verificador-progresso').classList.add('escondido');
-    document.getElementById('tela-dashboard').classList.remove('escondido');
-}
-
-function salvarVerificadorProgresso() {
-    const user = auth.currentUser;
-    if (user) {
-        let dadosVP = {};
-        for(let i=1; i<=9; i++) { // Alterado para 9 perguntas
-            dadosVP['q'+i] = document.getElementById('vp-q'+i).value;
-        }
-
-        db.collection('alunos').doc(user.uid).collection('verificadores_progresso').doc('mes_' + mesAtualVP).set(dadosVP)
-        .then(() => {
-            const msg = document.getElementById('msg-sucesso-vp');
-            msg.classList.remove('escondido');
-            setTimeout(() => msg.classList.add('escondido'), 3000);
-        })
-        .catch(error => alert("Erro ao salvar: " + error));
-    }
-}
-
-function carregarVerificadorProgresso(mes) {
-    const user = auth.currentUser;
-    if (user) {
-        // Limpa a tela primeiro
-        for(let i=1; i<=9; i++) { // Alterado para 9 perguntas
-            document.getElementById('vp-q'+i).value = '';
-        }
-
-        // Busca os dados
-        db.collection('alunos').doc(user.uid).collection('verificadores_progresso').doc('mes_' + mes).get()
-        .then(doc => {
-            if (doc.exists) {
-                const dados = doc.data();
-                for(let i=1; i<=9; i++) { // Alterado para 9 perguntas
-                    if(dados['q'+i]) {
-                        document.getElementById('vp-q'+i).value = dados['q'+i];
-                    }
-                }
-            }
-        });
-    }
-}
-    // Adiciona novos campos à lista de vocabulario nos dias
-    window.adicionarNovoCampo = function(dia) {
-    // 1. Encontra o container principal do dia (ex: container-palavras-dia1)
-    const container = document.getElementById(`container-palavras-${dia}`);
-
-    // 2. Encontra a grade onde os inputs ficam dentro desse dia
-    const grid = container.querySelector('.grid-vocabulario');
-
-    // 3. Conta quantos campos de vocabulário já existem para saber o próximo número
-    // Ele procura todos os inputs que o ID começa com "voc-"
-    const quantidadeAtual = grid.querySelectorAll('input[id^="voc-"]').length;
-    const proximoNumero = quantidadeAtual + 1;
-
-    // 4. Cria o novo campo de Palavra/Expressão
-    const inputVoc = document.createElement('input');
-    inputVoc.type = 'text';
-    inputVoc.id = `voc-${proximoNumero}`;
-    inputVoc.className = 'input-cinza';
-
-    // 5. Cria o novo campo de Exemplo
-    const inputExe = document.createElement('input');
-    inputExe.type = 'text';
-    inputExe.id = `exe-${proximoNumero}`;
-    inputExe.className = 'input-cinza';
-
-    // 6. Adiciona os dois novos campos no final da grade
-    grid.appendChild(inputVoc);
-    grid.appendChild(inputExe);
-};
-
-// Função auxiliar para deletar as subcoleções do Firebase
-async function deletarColecao(nomeColecao) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const snapshot = await db.collection('alunos').doc(user.uid).collection(nomeColecao).get();
-    const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-    });
-    await batch.commit();
-}
-
-// Função principal para zerar o progresso
-window.resetarProgresso = async function() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const confirmacao = confirm("Tem certeza que deseja ZERAR todo o seu progresso? Esta ação não pode ser desfeita.");
-    if (!confirmacao) return;
-
-    try {
-        await deletarColecao('dias');
-        await deletarColecao('verificadores');
-        await deletarColecao('verificadores_progresso');
-
-        // Reseta o status de onboarding para ver as telas de boas-vindas novamente
-        await db.collection('alunos').doc(user.uid).update({
-            onboardingConcluido: false
-        });
-
-        alert("Progresso resetado com sucesso! A página será recarregada.");
-        window.location.reload();
-
-    } catch (error) {
-        console.error("Erro ao resetar progresso: ", error);
-        alert("Ocorreu um erro ao tentar resetar o progresso.");
-    }
-};
-
+// --- FUNÇÕES DE ESTATÍSTICAS ---
 // Função para mostrar o grid de progresso geral do usuário
 function voltarDashboardEstatisticas() {
     window.scrollTo(0, 0);
