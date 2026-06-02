@@ -868,6 +868,7 @@ textarea.caixa-azul:focus {
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .dias-semana-rastreador {
