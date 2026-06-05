@@ -171,13 +171,6 @@ function gerarGridDias() {
         titulo.innerText = 'SEMANA ' + (s + 1);
         semanaDiv.appendChild(titulo);
 
-        // Criação da frase motivacional ---
-        const fraseMotivacionalDiv = document.createElement('div');
-        fraseMotivacionalDiv.className = 'frase-motivacional'; // Uma classe para estilizar depois
-        // Garante que a frase exista para a semana atual, senão usa uma mensagem padrão
-        fraseMotivacionalDiv.innerText = frasesMotivacionais[s] || "Continue firme nos seus estudos!";
-        semanaDiv.appendChild(fraseMotivacionalDiv);
-
         // Grade com os 7 dias
         const diasGrid = document.createElement('div');
         diasGrid.className = 'dias-grid';
@@ -641,6 +634,18 @@ function abrirVerificadorSemanal() {
     document.getElementById('tela-dia').classList.add('escondido');
     document.getElementById('tela-verificador-semanal').classList.remove('escondido');
     document.getElementById('titulo-semana-atual').innerText = 'Semana ' + semanaAtualVS;
+
+    // Criação da frase motivacional //
+    const fraseMotivacionalElement = document.getElementById('container-frase-motivacional-semanal');
+    if (fraseMotivacionalElement) {
+        // Ajusta o índice para o array (semana 1 -> índice 0)
+        const indiceFrase = semanaAtualVS - 1;
+        if (indiceFrase >= 0 && indiceFrase < frasesMotivacionais.length) {
+            fraseMotivacionalElement.innerText = frasesMotivacionais[indiceFrase];
+        } else {
+            fraseMotivacionalElement.innerText = "Continue firme em sua jornada!"; // Frase padrão se não houver uma específica
+        }
+    }
 
     carregarVerificadorSemanal(semanaAtualVS);
 }
