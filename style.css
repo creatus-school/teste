@@ -790,14 +790,17 @@ textarea.caixa-azul:focus {
 }
 
 .vs-texto-motivacional {
-    background-color: rgba(56, 163, 209, 0.1);
-    padding: 15px;
-    border-radius: 15px;
-    font-size: 13px;
+    font-family: var(--fonte-texto); /* Ou outra fonte que você preferir */
+    font-size: 1rem; /* Ajuste o tamanho conforme desejar */
+    color: #555; /* Um cinza mais suave */
+    margin-top: 20px; /* Espaço acima da frase */
+    margin-bottom: 20px; /* Espaço abaixo da frase */
+    font-style: italic; /* Para dar um toque especial */
     text-align: center;
-    color: #555;
-    margin: 20px 0;
-    line-height: 1.5;
+    padding: 10px 15px; /* Pequeno padding para não colar nas bordas */
+    background-color: rgba(240, 240, 240, 0.6); /* Um fundo levemente cinza */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Uma leve sombra para destacar */
 }
 
 .vs-dias-semana {
@@ -1373,18 +1376,4 @@ h1.titulo-dia {
 
 .titulo-dias-dashboard {
     text-align: center;
-}
-
-.frase-motivacional {
-    font-family: var(--fonte-texto); /* Ou outra fonte que você preferir */
-    font-size: 1rem; /* Ajuste o tamanho conforme desejar */
-    color: #555; /* Um cinza mais suave */
-    margin-top: 20px; /* Espaço acima da frase */
-    margin-bottom: 20px; /* Espaço abaixo da frase */
-    font-style: italic; /* Para dar um toque especial */
-    text-align: center;
-    padding: 10px 15px; /* Pequeno padding para não colar nas bordas */
-    background-color: rgba(240, 240, 240, 0.6); /* Um fundo levemente cinza */
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Uma leve sombra para destacar */
 }
