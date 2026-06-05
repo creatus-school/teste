@@ -1374,3 +1374,21 @@ h1.titulo-dia {
 .titulo-dias-dashboard {
     text-align: center;
 }
+
+.frase-motivacional {
+    font-family: var(--fonte-texto); /* Ou outra fonte que você preferir */
+    font-size: 0.95rem;
+    color: #555; /* Um cinza mais suave */
+    margin-top: 10px;
+    margin-bottom: 20px; /* Espaço entre a frase e os dias */
+    font-style: italic; /* Para dar um toque especial */
+    text-align: center;
+    padding: 0 10px; /* Pequeno padding para não colar nas bordas */
+}
+
+/* Fundo diferente para a frase motivacional semanal */
+.semana-container .frase-motivacional {
+    background-color: rgba(240, 240, 240, 0.6); /* Um fundo levemente cinza */
+    border-radius: 10px;
+    padding: 10px 15px;
+}
