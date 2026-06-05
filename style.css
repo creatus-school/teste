@@ -1377,18 +1377,14 @@ h1.titulo-dia {
 
 .frase-motivacional {
     font-family: var(--fonte-texto); /* Ou outra fonte que você preferir */
-    font-size: 0.95rem;
+    font-size: 1rem; /* Ajuste o tamanho conforme desejar */
     color: #555; /* Um cinza mais suave */
-    margin-top: 10px;
-    margin-bottom: 20px; /* Espaço entre a frase e os dias */
+    margin-top: 20px; /* Espaço acima da frase */
+    margin-bottom: 20px; /* Espaço abaixo da frase */
     font-style: italic; /* Para dar um toque especial */
     text-align: center;
-    padding: 0 10px; /* Pequeno padding para não colar nas bordas */
-}
-
-/* Fundo diferente para a frase motivacional semanal */
-.semana-container .frase-motivacional {
+    padding: 10px 15px; /* Pequeno padding para não colar nas bordas */
     background-color: rgba(240, 240, 240, 0.6); /* Um fundo levemente cinza */
     border-radius: 10px;
-    padding: 10px 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Uma leve sombra para destacar */
 }
