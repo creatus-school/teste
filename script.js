@@ -641,9 +641,9 @@ function abrirVerificadorSemanal() {
         // Ajusta o índice para o array (semana 1 -> índice 0)
         const indiceFrase = semanaAtualVS - 1;
         if (indiceFrase >= 0 && indiceFrase < frasesMotivacionais.length) {
-            fraseMotivacionalElement.innerText = frasesMotivacionais[indiceFrase];
+            fraseMotivacionalElement.innerHTML = frasesMotivacionais[indiceFrase];
         } else {
-            fraseMotivacionalElement.innerText = "Continue firme em sua jornada!"; // Frase padrão se não houver uma específica
+            fraseMotivacionalElement.innerHTML = "Continue firme em sua jornada!"; // Frase padrão se não houver uma específica
         }
     }
 
