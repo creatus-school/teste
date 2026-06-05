@@ -17,6 +17,30 @@ const provider = new firebase.auth.GoogleAuthProvider();
 let diaAtual = 1;
 let progressoAtual = { oralidade: 0, leitura: 0, escuta: 0, escrita: 0 };
 
+const frasesMotivacionais = [
+    "A jornada de mil milhas começa com um único passo. Você já deu o seu!", // Semana 1
+    "Pequenos progressos diários somam-se a grandes resultados.", // Semana 2
+    "A persistência é o caminho do êxito.", // Semana 3
+    "Não espere por uma crise para descobrir o que é importante na sua vida.", // Semana 4
+    "O sucesso é a soma de pequenos esforços repetidos dia após dia.", // Semana 5
+    "Acredite em você. Você é mais capaz do que imagina.", // Semana 6
+    "Cada dia é uma nova oportunidade para aprender e crescer.", // Semana 7
+    "Aprender um novo idioma abre portas para um novo mundo.", // Semana 8
+    "Seja a mudança que você deseja ver no mundo dos idiomas.", // Semana 9
+    "Aprender é o único caminho para o crescimento contínuo.", // Semana 10
+    "A fluência não é um destino, é uma jornada. Aproveite cada passo!", // Semana 11
+    "Sua dedicação de hoje é a sua fluência de amanhã.", // Semana 12
+    "Não desista! O aprendizado é um processo, não um evento.", // Semana 13
+    "Cada palavra nova é uma vitória. Celebre-as!", // Semana 14
+    "A prática leva à perfeição, especialmente em um novo idioma.", // Semana 15
+    "Desafie-se. É assim que você descobre o quão forte você é.", // Semana 16
+    "Aprender um idioma é como construir uma ponte para novas culturas.", // Semana 17
+    "O maior segredo do sucesso é a paixão pelo que se faz.", // Semana 18
+    "Não tenha medo de errar. Errar faz parte do aprendizado.", // Semana 19
+    "Sua voz importa, em qualquer idioma.", // Semana 20
+    "Parabéns! Você chegou ao fim de mais uma etapa. O mundo é seu!" // Semana 21
+];
+
 // Lógica do ciclo de tarefas do PDF (7 dias)
 const cicloTarefas = [
     "REVISÃO DE VOCABULÁRIO", // Posição 0 (Múltiplos de 7, ex: Dia 7, 14, 21)
@@ -146,6 +170,13 @@ function gerarGridDias() {
         titulo.className = 'titulo-semana';
         titulo.innerText = 'SEMANA ' + (s + 1);
         semanaDiv.appendChild(titulo);
+
+        // Criação da frase motivacional ---
+        const fraseMotivacionalDiv = document.createElement('div');
+        fraseMotivacionalDiv.className = 'frase-motivacional'; // Uma classe para estilizar depois
+        // Garante que a frase exista para a semana atual, senão usa uma mensagem padrão
+        fraseMotivacionalDiv.innerText = frasesMotivacionais[s] || "Continue firme nos seus estudos!";
+        semanaDiv.appendChild(fraseMotivacionalDiv);
 
         // Grade com os 7 dias
         const diasGrid = document.createElement('div');
