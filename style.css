@@ -1364,6 +1364,7 @@ h1.titulo-dia {
     text-align: center;
 }
 
+.frase-motivacional {
 font-family: var(--fonte-texto); /* Ou outra fonte que você preferir */
     font-size: 1rem; /* Ajuste o tamanho conforme desejar */
     color: #555; /* Um cinza mais suave */
