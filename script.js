@@ -23,7 +23,7 @@ const frasesMotivacionais = [
     "A persistência é o caminho do êxito.", // Semana 3
     "Não espere por uma crise para descobrir o que é importante na sua vida.", // Semana 4
     "O sucesso é a soma de pequenos esforços repetidos dia após dia.", // Semana 5
-    "A falta de ânimo faz parte do processo de aprendizado, por isso é importante você sempre relembrar <strong>o porquê</strong> de estar estudando inglês. Se achar necessário, releia suas respostas às perguntas de reflexão no início do seu plano de estudos.", // Semana 6
+    "A falta de ânimo faz parte do processo de aprendizado, por isso é importante você sempre relembrar <b>o porquê</b> de estar estudando inglês. Se achar necessário, releia suas respostas às perguntas de reflexão no início do seu plano de estudos.", // Semana 6
     "Cada dia é uma nova oportunidade para aprender e crescer.", // Semana 7
     "Aprender um novo idioma abre portas para um novo mundo.", // Semana 8
     "Seja a mudança que você deseja ver no mundo dos idiomas.", // Semana 9
